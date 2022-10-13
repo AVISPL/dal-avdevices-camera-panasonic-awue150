@@ -52,8 +52,8 @@ jobs:
       - name: PMD check
         run: mvn pmd:check
       - id: getfilename
-        run: echo "::set-output name=file::$(ls target/symphony-dal-avdevices-encoderdecoder-haivision-xdecoder-${{ needs.versiongenerate.outputs.version }}.jar)"
+        run: echo "::set-output name=file::$(ls target/symphony-dal-avdevices-camera-panasonic-awue150-${{ needs.versiongenerate.outputs.version }}.jar)"
       - uses: actions/upload-artifact@v1
         with:
-          name: HaivisionXDecoderCommunicator
+          name: CameraPanasonicAWUE150Communicator
           path: ${{ steps.getfilename.outputs.file }}

@@ -19,7 +19,7 @@ import com.avispl.symphony.dal.communicator.RestCommunicator;
  * Created on 11/13/2022
  * @since 1.0.0
  */
-public class PanasonicCameraAWUE150Communicator extends RestCommunicator implements  Monitorable, Controller {
+public class CameraPanasonicAWUE150Communicator extends RestCommunicator implements  Monitorable, Controller {
 
 	@Override
 	public List<Statistics> getMultipleStatistics() throws Exception {
