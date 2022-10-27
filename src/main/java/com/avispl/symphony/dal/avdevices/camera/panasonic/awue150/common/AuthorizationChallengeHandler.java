@@ -127,19 +127,11 @@ public class AuthorizationChallengeHandler {
 		authorizationPipeliningType.set(DIGEST);
 		Map<String, List<Map<String, String>>> challengesByType = partitionByChallengeType(challenges);
 
-		for (String algorithm : ALGORITHM_PREFERENCE_ORDER) {
-			// No challenges using this algorithm, skip it.
-			if (!challengesByType.containsKey(algorithm)) {
-				continue;
-			}
+		String algorithm = ALGORITHM_PREFERENCE_ORDER[0];
+		Function<byte[], byte[]> digestFunction = getDigestFunction(algorithm);
 
-			Function<byte[], byte[]> digestFunction = getDigestFunction(algorithm);
-
-			// Unable to retrieve a digest for the specified algorithm, skip it.
-			if (digestFunction == null) {
-				continue;
-			}
-
+		// if No challenges using this algorithm Unable to retrieve a digest for the specified algorithm, skip it.
+		if (challengesByType.containsKey(algorithm) && digestFunction != null) {
 			ConcurrentHashMap<String, String> challenge = new ConcurrentHashMap<>(challengesByType.get(algorithm)
 					.get(0));
 			lastChallenge.set(challenge);
@@ -206,11 +198,11 @@ public class AuthorizationChallengeHandler {
 				? calculateHa2AuthIntQop(digestFunction, method, uri, entityBodySupplier.get())
 				: calculateHa2AuthQopOrEmpty(digestFunction, method, uri);
 
-		String response = (AUTH.equals(qop) || AUTH_INT.equals(qop))
+		String response = AUTH.equals(qop) || AUTH_INT.equals(qop)
 				? calculateResponseKnownQop(digestFunction, ha1, nonce, nc, clientNonce, qop, ha2)
 				: calculateResponseUnknownQop(digestFunction, ha1, nonce, ha2);
 
-		String headerUsername = (hashUsername) ? calculateUserhash(digestFunction, realm) : username;
+		String headerUsername = hashUsername ? calculateUserhash(digestFunction, realm) : username;
 
 		return buildAuthorizationHeader(headerUsername, realm, uri, algorithm, nonce, nc, clientNonce, qop, response,
 				opaque, hashUsername);
