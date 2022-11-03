@@ -11,7 +11,7 @@ import java.util.Optional;
  * Set of fan status
  *
  * @author Harry / Symphony Dev Team<br>
- * Created on 5/4/2022
+ * Created on 10/27/2022
  * @since 1.0.0
  */
 public enum ErrorInformation {
@@ -30,8 +30,8 @@ public enum ErrorInformation {
 	/**
 	 * Parameterized constructor
 	 *
-	 * @param uiName ui name of decoder buffering mode
-	 * @param apiName  api name of decoder buffering mode
+	 * @param uiName ui name of error information
+	 * @param apiName  api name of error information
 	 */
 	ErrorInformation(String uiName, String apiName) {
 		this.uiName = uiName;

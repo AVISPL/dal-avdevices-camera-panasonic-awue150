@@ -11,7 +11,7 @@ import java.util.Optional;
  * Set of error status
  *
  * @author Harry / Symphony Dev Team<br>
- * Created on 5/4/2022
+ * Created on 10/27/2022
  * @since 1.0.0
  */
 public enum ErrorStatusInformation {
@@ -111,8 +111,8 @@ public enum ErrorStatusInformation {
 	/**
 	 * Parameterized constructor
 	 *
-	 * @param uiName ui name of decoder buffering mode
-	 * @param apiName  api name of decoder buffering mode
+	 * @param uiName ui name of error status
+	 * @param apiName  api name of error status
 	 */
 	ErrorStatusInformation(String uiName, String apiName) {
 		this.uiName = uiName;

@@ -1,23 +1,23 @@
 /*
  * Copyright (c) 2022 AVI-SPL, Inc. All Rights Reserved.
  */
-package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing;
+package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Set of power status
+ * Set of focus ADJ with PTZ status
  *
  * @author Harry / Symphony Dev Team<br>
  * Created on 10/27/2022
  * @since 1.0.0
  */
-public enum PowerStatus {
+public enum FocusADJWithPTZ {
 
-	ON("On", "p1"),
-	OFF("Standby", "p0"),
+	MANUAL("Off", "OAZ:0"),
+	AUTO("On", "OAZ:1"),
 	ERROR("None", "None");
 
 	private final String uiName;
@@ -26,10 +26,10 @@ public enum PowerStatus {
 	/**
 	 * Parameterized constructor
 	 *
-	 * @param uiName ui name of power status
-	 * @param apiName  api name of power status
+	 * @param uiName ui name of focus ADJ with PTZ status
+	 * @param apiName  api name focus ADJ with PTZ status
 	 */
-	PowerStatus(String uiName, String apiName) {
+	FocusADJWithPTZ(String uiName, String apiName) {
 		this.uiName = uiName;
 		this.apiName = apiName;
 	}
@@ -56,11 +56,11 @@ public enum PowerStatus {
 	 * This method is used to get fan status by API values
 	 *
 	 * @param apiValues is the set of live camera info value
-	 * @return powerStatus is the power status that want to get
+	 * @return focusADJWithPTZ is the focus ADJ with PTZ status that want to get
 	 */
-	public static PowerStatus getByAPIValue(Map<String, String> apiValues) {
-		Optional<PowerStatus> powerStatus = Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return powerStatus.orElse(PowerStatus.ERROR);
+	public static FocusADJWithPTZ getByAPIValue(Map<String, String> apiValues) {
+		Optional<FocusADJWithPTZ> focusADJWithPTZ = Arrays.stream(FocusADJWithPTZ.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
+		return focusADJWithPTZ.orElse(FocusADJWithPTZ.ERROR);
 	}
 }
 

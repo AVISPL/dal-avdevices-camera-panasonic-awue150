@@ -22,9 +22,6 @@ public class SystemInfo {
 	@JsonAlias("VERSION")
 	private String firmwareVersion;
 
-	@JsonAlias("NAME")
-	private String modelName;
-
 	/**
 	 * Retrieves {@link #macAddress}
 	 *
@@ -79,21 +76,4 @@ public class SystemInfo {
 		this.firmwareVersion = firmwareVersion;
 	}
 
-	/**
-	 * Retrieves {@link #modelName}
-	 *
-	 * @return value of {@link #modelName}
-	 */
-	public String getModelName() {
-		return modelName;
-	}
-
-	/**
-	 * Sets {@link #modelName} value
-	 *
-	 * @param modelName new value of {@link #modelName}
-	 */
-	public void setModelName(String modelName) {
-		this.modelName = modelName;
-	}
 }

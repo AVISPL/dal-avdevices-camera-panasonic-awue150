@@ -11,7 +11,7 @@ import java.util.Optional;
  * Set of video output format
  *
  * @author Harry / Symphony Dev Team<br>
- * Created on 5/4/2022
+ * Created on 10/27/2022
  * @since 1.0.0
  */
 public enum OutputFormatMetric {
@@ -27,7 +27,7 @@ public enum OutputFormatMetric {
 	FORMAT_1080_50P("1080/50p", "OSA:87:0x11"),
 	FORMAT_1080_30P("1080/29.97p", "OSA:87:0x14"),
 	FORMAT_1080_25P("1080/25p", "OSA:87:0x15"),
-	FORMAT_1080_23P("1080/23.98p", "OSA:87:0x16"),
+	FORMAT_1080_23P("1080/23.98p (over59.94i)", "OSA:87:0x16"),
 	FORMAT_2160_30P("2160/29.97p", "OSA:87:0x17"),
 	FORMAT_2160_25P("2160/25p", "OSA:87:0x18"),
 	FORMAT_2160_60P("2160/59.94p", "OSA:87:0x19"),
@@ -43,8 +43,8 @@ public enum OutputFormatMetric {
 	/**
 	 * Parameterized constructor
 	 *
-	 * @param uiName ui name of decoder buffering mode
-	 * @param apiName api name of decoder buffering mode
+	 * @param uiName ui name of video output format
+	 * @param apiName api name of video output format
 	 */
 	OutputFormatMetric(String uiName, String apiName) {
 		this.uiName = uiName;
