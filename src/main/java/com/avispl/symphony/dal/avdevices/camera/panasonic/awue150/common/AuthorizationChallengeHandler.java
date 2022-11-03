@@ -127,17 +127,15 @@ public class AuthorizationChallengeHandler {
 		authorizationPipeliningType.set(DIGEST);
 		Map<String, List<Map<String, String>>> challengesByType = partitionByChallengeType(challenges);
 
-		String algorithm = ALGORITHM_PREFERENCE_ORDER[0];
-		Function<byte[], byte[]> digestFunction = getDigestFunction(algorithm);
-
-		// if No challenges using this algorithm Unable to retrieve a digest for the specified algorithm, skip it.
-		if (challengesByType.containsKey(algorithm) && digestFunction != null) {
-			ConcurrentHashMap<String, String> challenge = new ConcurrentHashMap<>(challengesByType.get(algorithm)
-					.get(0));
-			lastChallenge.set(challenge);
-
-			return createDigestAuthorizationHeader(method, uri, challenge, algorithm, entityBodySupplier,
-					digestFunction);
+		for (String algorithm : ALGORITHM_PREFERENCE_ORDER) {
+			Function<byte[], byte[]> digestFunction = getDigestFunction(algorithm);
+			// if No challenges using this algorithm Unable to retrieve a digest for the specified algorithm, skip it.
+			if (challengesByType.containsKey(algorithm) && digestFunction != null) {
+				ConcurrentHashMap<String, String> challenge = new ConcurrentHashMap<>(challengesByType.get(algorithm)
+						.get(0));
+				lastChallenge.set(challenge);
+				return createDigestAuthorizationHeader(method, uri, challenge, algorithm, entityBodySupplier, digestFunction);
+			}
 		}
 		return null;
 	}

@@ -31,7 +31,7 @@ public enum DeviceInfoMetric {
 	/**
 	 * Parameterized constructor
 	 *
-	 * @param name Name of Decoder monitoring metric
+	 * @param name Name of monitoring metric
 	 */
 	DeviceInfoMetric(String name) {
 		this.name = name;
