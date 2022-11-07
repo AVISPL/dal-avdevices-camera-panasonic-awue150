@@ -58,7 +58,8 @@ public class DeviceConstant {
 	public static final String DOWN_RIGHT = "DownRight";
 	public static final String BASIC = "Basic ";
 	public static final String DIGEST = "Digest ";
-	public static final String PRESET_FORMAT = "%02d";
+	public static final String API_PRESET_FORMAT = "%02d";
+	public static final String UI_PRESET_FORMAT = "%03d";
 	public static final String REGEX_TRAILING_OF_FIELD = "\r\n";
 	public static final String MAX_FOCUS_API_VALUE = "FFF";
 	public static final String MIN_FOCUS_API_VALUE = "555";
@@ -104,5 +105,6 @@ public class DeviceConstant {
 	public static final int PRESET_INDEX_MAX = 100;
 	public static final int PRESET_INDEX_MIN = 1;
 	public static final int DEFAULT_PRESET_INDEX = 0;
+	public static final float DEFAULT_VALUE= 0;
 }
 
