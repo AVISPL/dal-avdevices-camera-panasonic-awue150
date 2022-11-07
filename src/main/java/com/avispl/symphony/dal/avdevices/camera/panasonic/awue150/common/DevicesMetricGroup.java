@@ -17,6 +17,8 @@ public enum DevicesMetricGroup {
 
 	SYSTEM_INFO("SystemInfo"),
 	CAMERA_LIVE_INFO("CameraLiveInfo"),
+	MODEL_NAME("ModelName"),
+	SIMULTANEOUS("Simultaneous"),
 	PAN_TITL_PAD_CONTROL("PanTitlPadControl"),
 	ZOOM_CONTROL("ZoomControl"),
 	FOCUS_CONTROL("FocusControl"),
