@@ -175,7 +175,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					case PRESET_CONTROL:
 						presetControl(stats, advancedControllableProperties, splitProperty[1], value);
 						break;
-					case PAN_TITL_PAD_CONTROL:
+					case PAN_TILT_PAD_CONTROL:
 						panTiltControl(stats, advancedControllableProperties, splitProperty[1], value);
 						break;
 					case ZOOM_CONTROL:
@@ -789,7 +789,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
 			String response = doGet(request);
-			if (response.toUpperCase().contains("ER")) {
+			if (response.toUpperCase().contains(Command.ERROR_RESPONSE)) {
 				throw new IllegalStateException(String.format("Error while controlling %s", controllableProperty));
 			}
 			return response;
@@ -816,7 +816,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param advancedControllableProperties store all controllable properties
 	 */
 	private void populatePanTiltControls(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		String groupName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH;
+		String groupName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH;
 
 		addAdvanceControlProperties(advancedControllableProperties, createButton(stats, groupName.concat(PanTiltControlMetric.HOME.getName()), DeviceConstant.PT_HOME, DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties, createButton(stats, groupName.concat(PanTiltControlMetric.UP.getName()), DeviceConstant.UP, DeviceConstant.PUSHING));
@@ -900,7 +900,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				command = Command.PAN_TILT
 						.concat(String.valueOf(currentCommandValue))
 						.concat(DeviceConstant.PAN_STOP_API_VALUE);
-				performCameraControl(Command.PAN_TILT_LEFT_DEFAULT, controllableProperty, true);
+				performCameraControl(Command.PAN_TILT_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
 				retrieveLiveCameraInfo(stats, true);
@@ -1001,7 +1001,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
 			String response = doGet(request);
-			if (response.toUpperCase().contains(Command.ERROR)) {
+			if (response.toUpperCase().contains(Command.ERROR_RESPONSE)) {
 				throw new IllegalStateException(String.format("Error while controlling %s", controllableProperty));
 			}
 			return response;

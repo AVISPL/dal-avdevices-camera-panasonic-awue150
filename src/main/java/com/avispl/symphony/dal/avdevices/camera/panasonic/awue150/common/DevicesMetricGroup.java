@@ -10,7 +10,7 @@ import java.util.Optional;
  * Set of devices metric group keys
  *
  * @author Harry / Symphony Dev Team<br>
- * Created on 3/8/2022
+ * Created on 10/25/2022
  * @since 1.0.0
  */
 public enum DevicesMetricGroup {
@@ -19,7 +19,7 @@ public enum DevicesMetricGroup {
 	CAMERA_LIVE_INFO("CameraLiveInfo"),
 	MODEL_NAME("ModelName"),
 	SIMULTANEOUS("Simultaneous"),
-	PAN_TITL_PAD_CONTROL("PanTitlPadControl"),
+	PAN_TILT_PAD_CONTROL("PanTiltPadControl"),
 	ZOOM_CONTROL("ZoomControl"),
 	FOCUS_CONTROL("FocusControl"),
 	PRESET_CONTROL("PresetControl"),

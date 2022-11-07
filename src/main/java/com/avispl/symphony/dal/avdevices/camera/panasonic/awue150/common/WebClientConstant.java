@@ -9,6 +9,9 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
  */
 public class WebClientConstant {
 
+	/**
+	 *  private/ non-parameterized constructor to prevent instance initialization
+	 */
 	private WebClientConstant() {
 	}
 
