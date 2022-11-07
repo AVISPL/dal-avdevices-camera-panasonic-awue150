@@ -24,6 +24,7 @@ public enum DeviceInfoMetric {
 	FAN2_STATUS("Fan2Status"),
 	ERROR_INFORMATION("ErrorInformation"),
 	ERROR_STATUS_INFO("ErrorStatusInfo"),
+	UHD_CROP("UHDCrop"),
 	POWER_STATUS("PowerStatus");
 
 	private final String name;

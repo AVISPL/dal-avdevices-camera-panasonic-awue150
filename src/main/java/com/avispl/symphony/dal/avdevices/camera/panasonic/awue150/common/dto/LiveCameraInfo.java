@@ -29,6 +29,12 @@ public class LiveCameraInfo {
 	private String preset41To80;
 	private String preset81To100;
 	private List<Character> presetEntitiesStatus;
+	private String zoomPosition;
+
+	private String panUIValue;
+	private String tiltUIValue;
+	private int zoomUIValue;
+	private int focusUIValue;
 
 	/**
 	 * Retrieves {@link #focusPosition}
@@ -244,5 +250,95 @@ public class LiveCameraInfo {
 	 */
 	public void setPresetEntitiesStatus(List<Character> presetEntitiesStatus) {
 		this.presetEntitiesStatus = presetEntitiesStatus;
+	}
+
+	/**
+	 * Retrieves {@link #zoomPosition}
+	 *
+	 * @return value of {@link #zoomPosition}
+	 */
+	public String getZoomPosition() {
+		return zoomPosition;
+	}
+
+	/**
+	 * Sets {@link #zoomPosition} value
+	 *
+	 * @param zoomPosition new value of {@link #zoomPosition}
+	 */
+	public void setZoomPosition(String zoomPosition) {
+		this.zoomPosition = zoomPosition;
+	}
+
+	/**
+	 * Retrieves {@link #panUIValue}
+	 *
+	 * @return value of {@link #panUIValue}
+	 */
+	public String getPanUIValue() {
+		return panUIValue;
+	}
+
+	/**
+	 * Sets {@link #panUIValue} value
+	 *
+	 * @param panUIValue new value of {@link #panUIValue}
+	 */
+	public void setPanUIValue(String panUIValue) {
+		this.panUIValue = panUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #tiltUIValue}
+	 *
+	 * @return value of {@link #tiltUIValue}
+	 */
+	public String getTiltUIValue() {
+		return tiltUIValue;
+	}
+
+	/**
+	 * Sets {@link #tiltUIValue} value
+	 *
+	 * @param tiltUIValue new value of {@link #tiltUIValue}
+	 */
+	public void setTiltUIValue(String tiltUIValue) {
+		this.tiltUIValue = tiltUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #zoomUIValue}
+	 *
+	 * @return value of {@link #zoomUIValue}
+	 */
+	public int getZoomUIValue() {
+		return zoomUIValue;
+	}
+
+	/**
+	 * Sets {@link #zoomUIValue} value
+	 *
+	 * @param zoomUIValue new value of {@link #zoomUIValue}
+	 */
+	public void setZoomUIValue(int zoomUIValue) {
+		this.zoomUIValue = zoomUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #focusUIValue}
+	 *
+	 * @return value of {@link #focusUIValue}
+	 */
+	public int getFocusUIValue() {
+		return focusUIValue;
+	}
+
+	/**
+	 * Sets {@link #focusUIValue} value
+	 *
+	 * @param focusUIValue new value of {@link #focusUIValue}
+	 */
+	public void setFocusUIValue(int focusUIValue) {
+		this.focusUIValue = focusUIValue;
 	}
 }
