@@ -127,10 +127,13 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				final ExtendedStatistics extendedStatistics = new ExtendedStatistics();
 				final Map<String, String> stats = new HashMap<>();
 				final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
-				login();
-				retrieveSystemInfo(stats, true);
-				retrieveLiveCameraInfo(stats, true);
-				retrieveModelName(stats, true);
+
+				if (StringUtils.isNotNullOrEmpty(authorizationHeader)) {
+					login();
+				}
+				retrieveSystemInfo(stats);
+				retrieveLiveCameraInfo(stats);
+				retrieveModelName(stats);
 				retrieveSimultaneous();
 				if (OperationLock.UNLOCK.equals(cachedLiveCameraInfo.getOperationLock()) && PowerStatus.ON.equals(cachedLiveCameraInfo.getPowerStatus())) {
 					populateFocusControls(stats, advancedControllableProperties);
@@ -304,17 +307,16 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	/**
 	 * This method is used to retrieve system information by send get request to "http://***REMOVED***/cgi-bin/getinfo?FILE=1"
 	 *
-	 * @param stats When there is no response data, the failedMonitor is going to update
-	 * @param retryOnUnAuthorized retry on unauthorized request
-	 * When there is an exception, the failedMonitor is going to update and exception is not populated
+	 * @param stats store all statistics
+	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 */
-	private void retrieveSystemInfo(Map<String, String> stats, boolean retryOnUnAuthorized) {
-		try {
-			String request = buildDeviceFullPath(DeviceURL.SYSTEM_INFO);
-			String response = doGet(request);
-
-			if (StringUtils.isNotNullOrEmpty(response)) {
-				// map data to dto
+	private void retrieveSystemInfo(Map<String, String> stats) throws FailedLoginException {
+		String request = buildDeviceFullPath(DeviceURL.SYSTEM_INFO);
+		String response = sendCameraMonitoringRequest(request, DevicesMetricGroup.SYSTEM_INFO.getName(), true);
+		if (StringUtils.isNotNullOrEmpty(response)) {
+			SystemInfo systemInfo = null;
+			// map data to dto
+			try {
 				String[] fields = response.split(DeviceConstant.REGEX_TRAILING_OF_FIELD);
 				Map<String, String> rawObject = new HashMap<>();
 				for (String field : fields) {
@@ -325,43 +327,38 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				}
 
 				ObjectMapper objectMapper = new ObjectMapper();
-				SystemInfo systemInfo = objectMapper.convertValue(rawObject, SystemInfo.class);
-				if (systemInfo != null) {
-					stats.put(DeviceInfoMetric.MAC_ADDRESS.getName(), systemInfo.getMacAddress());
-					stats.put(DeviceInfoMetric.SERIAL_NUMBER.getName(), systemInfo.getSerialNumber());
-					stats.put(DeviceInfoMetric.FIRMWARE_VERSION.getName(), systemInfo.getFirmwareVersion());
-				} else {
-					updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while getting system information");
-				}
+				systemInfo = objectMapper.convertValue(rawObject, SystemInfo.class);
+			} catch (Exception e) {
+				logger.error(String.format("error while deserializing system information: %s", e.getMessage()), e);
+				updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while deserializing system information");
+			}
+			if (systemInfo != null) {
+				stats.put(DeviceInfoMetric.MAC_ADDRESS.getName(), getDefaultValueForNullData(systemInfo.getMacAddress(), DeviceConstant.NONE));
+				stats.put(DeviceInfoMetric.SERIAL_NUMBER.getName(), getDefaultValueForNullData(systemInfo.getSerialNumber(), DeviceConstant.NONE));
+				stats.put(DeviceInfoMetric.FIRMWARE_VERSION.getName(), getDefaultValueForNullData(systemInfo.getFirmwareVersion(), DeviceConstant.NONE));
 			} else {
 				updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while getting system information");
 			}
-		} catch (FailedLoginException f) {
-			if (retryOnUnAuthorized) {
-				login();
-				retrieveSystemInfo(stats, false);
-			}
-		} catch (Exception e) {
-			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), String.format("error while getting system information: %s", e.getMessage()));
+		} else {
+			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while getting system information");
 		}
 	}
 
 	/**
 	 * This method is used to retrieve live camera information by send get request to "http://***REMOVED***/live/camdata.html"
 	 *
-	 * @param stats When there is no response data, the failedMonitor is going to update
-	 * @param retryOnUnAuthorized retry on unauthorized request
-	 * When there is an exception, the failedMonitor is going to update and exception is not populated
+	 * @param stats store all statistics
+	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 */
-	private void retrieveLiveCameraInfo(Map<String, String> stats, boolean retryOnUnAuthorized) {
-		try {
-			String request = buildDeviceFullPath(DeviceURL.LIVE_CAMERA_DATA);
-			String response = doGet(request);
+	private void retrieveLiveCameraInfo(Map<String, String> stats) throws FailedLoginException {
+		String request = buildDeviceFullPath(DeviceURL.LIVE_CAMERA_DATA);
+		String response = sendCameraMonitoringRequest(request, DevicesMetricGroup.CAMERA_LIVE_INFO.getName(), true);
 
-			if (StringUtils.isNotNullOrEmpty(response)) {
-				// map data to dto
+		if (StringUtils.isNotNullOrEmpty(response)) {
+			// map data to dto
+			Map<String, String> fields = new HashMap<>();
+			try {
 				String[] splitStrings = response.split(DeviceConstant.REGEX_TRAILING_OF_FIELD);
-				Map<String, String> fields = new HashMap<>();
 				for (String fieldElement :
 						splitStrings) {
 					if (fieldElement.startsWith(Command.OPERATION_LOCK_RESPONSE)) {
@@ -401,6 +398,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					}
 					fields.put(fieldElement, DeviceConstant.NONE);
 				}
+			} catch (Exception e) {
+				logger.error(String.format("error while deserializing live camera information: %s", e.getMessage()), e);
+				updateFailedMonitor(DevicesMetricGroup.CAMERA_LIVE_INFO.getName(), "error while deserializing system information");
+			}
+			if (!fields.isEmpty()) {
 				// put live camera info to cache
 				cachedLiveCameraInfo.setAutoFocus(AutoFocus.getByAPIValue(fields));
 				cachedLiveCameraInfo.setFocusADJWithPTZ(FocusADJWithPTZ.getByAPIValue(fields).getUiName());
@@ -420,63 +422,53 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				stats.put(DeviceInfoMetric.ERROR_STATUS_INFO.getName(), ErrorStatusInformation.getByAPIValue(fields).getUiName());
 				stats.put(DeviceInfoMetric.POWER_STATUS.getName(), cachedLiveCameraInfo.getPowerStatus().getUiName());
 				stats.put(DeviceInfoMetric.UHD_CROP.getName(), UHDCrop.getByAPIValue(fields).getUiName());
-			} else {
-				updateFailedMonitor(DevicesMetricGroup.CAMERA_LIVE_INFO.getName(), "error while getting camera live information");
 			}
-		} catch (FailedLoginException f) {
-			if (retryOnUnAuthorized) {
-				login();
-				retrieveLiveCameraInfo(stats, false);
-			}
-		} catch (Exception e) {
-			updateFailedMonitor(DevicesMetricGroup.CAMERA_LIVE_INFO.getName(), String.format("error while getting camera live information: %s", e.getMessage()));
+		} else {
+			updateFailedMonitor(DevicesMetricGroup.CAMERA_LIVE_INFO.getName(), "error while getting camera live information");
 		}
 	}
 
 	/**
 	 * This method is used to retrieve model name information by send get request to "http://***REMOVED***/cgi-bin/model_serial"
 	 *
-	 * @param stats When there is no response data, the failedMonitor is going to update
-	 * @param retryOnUnAuthorized retry on unauthorized request
-	 * When there is an exception, the failedMonitor is going to update and exception is not populated
+	 * @param stats store all statistics
+	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 */
-	private void retrieveModelName(Map<String, String> stats, boolean retryOnUnAuthorized) {
-		try {
-			String request = buildDeviceFullPath(DeviceURL.MODEL_SERIAL);
-			String response = doGet(request);
+	private void retrieveModelName(Map<String, String> stats) throws FailedLoginException {
+		String request = buildDeviceFullPath(DeviceURL.MODEL_SERIAL);
+		String response = sendCameraMonitoringRequest(request, DevicesMetricGroup.SIMULTANEOUS.getName(), true);
+
+		if (StringUtils.isNotNullOrEmpty(response) && response.contains(DeviceConstant.COLON)) {
 			String[] splitResponse = response.split(DeviceConstant.COLON);
-			if (StringUtils.isNotNullOrEmpty(response)) {
-				stats.put(DeviceInfoMetric.MODEL_NAME.getName(), splitResponse[0]);
-			} else {
-				updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while getting model name");
-			}
-		} catch (FailedLoginException f) {
-			if (retryOnUnAuthorized) {
-				login();
-				retrieveSystemInfo(stats, false);
-			}
-		} catch (Exception e) {
-			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), String.format("error while model name: %s", e.getMessage()));
+			stats.put(DeviceInfoMetric.MODEL_NAME.getName(), splitResponse[0]);
+		} else {
+			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while getting model name");
 		}
 	}
 
 	/**
 	 * This method is used to retrieve model name information by send get request to "http://***REMOVED***//cgi-bin/aw_ptz?cmd=%23PTD&res=1"
+	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 */
 	private void retrieveSimultaneous() throws FailedLoginException {
 		String command = Command.HASH.concat(Command.SIMULTANEOUS);
 		String response = sendCameraMonitoringRequest(command, DevicesMetricGroup.SIMULTANEOUS.getName(), true);
 		if (response != null) {
-			String data = response.substring(Command.SIMULTANEOUS.length());
-			cachedLiveCameraInfo.setPanUIValue(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
-			cachedLiveCameraInfo.setTiltUIValue(data.substring(DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
-			cachedLiveCameraInfo.setZoomUIValue(Integer.parseInt(data.substring(DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16));
+			try {
+				String data = response.substring(Command.SIMULTANEOUS.length());
+				cachedLiveCameraInfo.setPanUIValue(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
+				cachedLiveCameraInfo.setTiltUIValue(data.substring(DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
+				cachedLiveCameraInfo.setZoomUIValue(Integer.parseInt(data.substring(DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16));
 
-			int focusUIValue = Integer.parseInt(data.substring(DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
-			if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
-				focusUIValue = (int) DeviceConstant.MAX_FOCUS_UI_VALUE;
+				int focusUIValue = Integer.parseInt(data.substring(DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
+				if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
+					focusUIValue = (int) DeviceConstant.MAX_FOCUS_UI_VALUE;
+				}
+				cachedLiveCameraInfo.setFocusUIValue(focusUIValue);
+			} catch (Exception e) {
+				logger.error(String.format("error while deserializing simultaneous information: %s", e.getMessage()), e);
+				updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while deserializing system information");
 			}
-			cachedLiveCameraInfo.setFocusUIValue(focusUIValue);
 		} else {
 			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), String.format("error while receive %s", DevicesMetricGroup.SIMULTANEOUS.getName()));
 		}
@@ -485,27 +477,25 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	/**
 	 * This method is used to send monitoring request
 	 *
-	 * @param command focus control command
+	 * @param request monitoring request
 	 * @param monitoringGroup monitoring group
 	 * @param retryOnUnAuthorized retry on unauthorized request
 	 * @return String response
 	 * @throws FailedLoginException when log in failed
-	 * @throws IllegalStateException when exception occur
+	 * When exception occur (except FailedLoginException), the failedMonitor is going to update and exception is not populated
 	 */
-	private String sendCameraMonitoringRequest(String command, String monitoringGroup, boolean retryOnUnAuthorized) throws FailedLoginException {
+	private String sendCameraMonitoringRequest(String request, String monitoringGroup, boolean retryOnUnAuthorized) throws FailedLoginException {
 		try {
-			String request = buildDeviceFullPath(DeviceURL.CAMERA_PTZ_CONTROL
-					.concat(command)
-					.concat(DeviceURL.CAMERA_CONTROL_RES));
 			return doGet(request);
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
-				performAutoFocusControl(command, monitoringGroup, false);
+				sendCameraMonitoringRequest(request, monitoringGroup, false);
 			}
 			throw new FailedLoginException("Failed to login, please check the username and password");
 		} catch (Exception e) {
-			updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), String.format("error while receive %s: %s", monitoringGroup, e.getMessage()));
+			logger.error(String.format("error while receive %s: %s", monitoringGroup, e.getMessage()));
+			updateFailedMonitor(monitoringGroup, String.format("error while receive %s: %s", monitoringGroup, e.getMessage()));
 		}
 		return DeviceConstant.EMPTY;
 	}
@@ -525,7 +515,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String focusControlLabelStart = String.valueOf((int) DeviceConstant.MIN_FOCUS_UI_VALUE);
 		String focusControlLabelEnd = String.valueOf((int) DeviceConstant.MAX_FOCUS_UI_VALUE);
 		String focusSpeedControlLabelStart = String.valueOf((int) DeviceConstant.MIN_FOCUS_SPEED_UI_VALUE);
-		Float currentFocusPosition = convertFromApiValueToUIValue(cachedLiveCameraInfo.getFocusPosition(),
+		Float currentFocusPosition = convertFromApiValueToUIValue(getDefaultValueForNullData(cachedLiveCameraInfo.getFocusPosition(), DeviceConstant.EMPTY),
 				DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE, DeviceConstant.MIN_FOCUS_UI_VALUE);
 		addAdvanceControlProperties(advancedControllableProperties, createSlider(stats, groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()), focusControlLabelStart, focusControlLabelEnd,
 				DeviceConstant.MIN_FOCUS_UI_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE, currentFocusPosition));
@@ -538,9 +528,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createButton(stats, groupName.concat(FocusControlMetric.FOCUS_CONTROL_FAR.getName()), FocusControlMetric.FAR.getName(), DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties,
 				createSwitch(stats, groupName.concat(FocusControlMetric.AUTO_FOCUS.getName()), cachedLiveCameraInfo.getAutoFocus().getCode(), DeviceConstant.OFF, DeviceConstant.ON));
-		stats.put(groupName.concat(FocusControlMetric.FOCUS_ADJ_WITH_PTZ.getName()), cachedLiveCameraInfo.getFocusADJWithPTZ());
+		stats.put(groupName.concat(FocusControlMetric.FOCUS_ADJ_WITH_PTZ.getName()), getDefaultValueForNullData(cachedLiveCameraInfo.getFocusADJWithPTZ(), DeviceConstant.NONE));
 		stats.put(groupName.concat(FocusControlMetric.FOCUS_MODE.getName()), cachedLiveCameraInfo.getAutoFocus().getUiName());
-		stats.put(groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName()), String.valueOf(cachedLiveCameraInfo.getFocusUIValue()));
+		stats.put(groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName()),
+				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getFocusUIValue()), DeviceConstant.NONE));
 		stats.put(groupName.concat(FocusControlMetric.FOCUS_CONTROL_SPEED.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName()), String.valueOf((int) cachedFocusControlSpeed));
 	}
 
@@ -552,7 +543,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param controllableProperty controllable property
 	 * @param value value of controllable property
 	 */
-	private void focusControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws FailedLoginException {
+	private void focusControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws
+			FailedLoginException {
 		FocusControlMetric focusControlMetric = FocusControlMetric.getByName(controllableProperty);
 		isEmergencyDelivery = true;
 		switch (focusControlMetric) {
@@ -700,7 +692,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		if (presetModes.isEmpty()) {
 			presetModes.add(DeviceConstant.DEFAULT_PRESET);
 			for (int index = DeviceConstant.PRESET_INDEX_MIN; index <= DeviceConstant.PRESET_INDEX_MAX; index++) {
-				presetModes.add(PresetControlMetric.PRESET.getName().concat(String.format("%03d", index)));
+				presetModes.add(PresetControlMetric.PRESET.getName().concat(String.format(DeviceConstant.UI_PRESET_FORMAT, index)));
 			}
 		}
 		addAdvanceControlProperties(advancedControllableProperties, createDropdown(stats, groupName.concat(PresetControlMetric.PRESET.getName()), presetModes, cachedPresetControl));
@@ -717,7 +709,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			unusedKeys.add(groupName.concat(PresetControlMetric.SET_PRESET.getName()));
 			removeUnusedStatsAndControls(stats, advancedControllableProperties, unusedKeys);
 		}
-		stats.put(groupName.concat(PresetControlMetric.LAST_PRESET.getName()), PresetControlMetric.PRESET.getName() + String.format("%03d", Integer.parseInt(cachedLiveCameraInfo.getLastPreset())));
+		stats.put(groupName.concat(PresetControlMetric.LAST_PRESET.getName()), PresetControlMetric.PRESET.getName() + String.format(DeviceConstant.UI_PRESET_FORMAT,
+				Integer.parseInt(getDefaultValueForNullData(cachedLiveCameraInfo.getLastPreset(), String.valueOf(DeviceConstant.DEFAULT_VALUE)))));
 	}
 
 	/**
@@ -728,12 +721,14 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param controllableProperty controllable property
 	 * @param value value of controllable property
 	 */
-	private void presetControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws FailedLoginException {
+	private void presetControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws
+			FailedLoginException {
 		PresetControlMetric presetControlMetric = PresetControlMetric.getByName(controllableProperty);
 		String presetIndexAPIValue = String.valueOf(DeviceConstant.DEFAULT_PRESET_INDEX);
+
 		if (!DeviceConstant.DEFAULT_PRESET.equals(cachedPresetControl)) {
 			Integer index = Integer.parseInt(cachedPresetControl.substring(DeviceConstant.PRESET.length())) - 1;
-			presetIndexAPIValue = String.format(DeviceConstant.PRESET_FORMAT, index);
+			presetIndexAPIValue = String.format(DeviceConstant.API_PRESET_FORMAT, index);
 		}
 		isEmergencyDelivery = true;
 		switch (presetControlMetric) {
@@ -755,14 +750,21 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
 				break;
 			case APPLY_PRESET:
-				if (cachedLiveCameraInfo.getPresetEntitiesStatus().get(Integer.parseInt(presetIndexAPIValue)).equals('0')) {
-					throw new IllegalStateException(String.format("%s is not set, please try another preset", cachedPresetControl));
+				char presetEntity;
+				try {
+					presetEntity = cachedLiveCameraInfo.getPresetEntitiesStatus().get(Integer.parseInt(presetIndexAPIValue));
+				} catch (Exception e) {
+					throw new IllegalStateException(String.format("%s is not exist, please try another preset", cachedPresetControl));
 				}
-				command = Command.APPLY_PRESET.concat(presetIndexAPIValue);
-				String response = performPresetControl(command, controllableProperty, true);
-				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
-				cachedLiveCameraInfo.setLastPreset(String.valueOf(Integer.parseInt(response.substring(Command.PRESET_RESPONSE.length())) + 1));
-				break;
+				if (Objects.equals(presetEntity, Command.DELETE_PRESET_SUCCESSFUL_RESPONSE)) {
+					throw new IllegalStateException(String.format("%s is not set, please try another preset", cachedPresetControl));
+				} else {
+					command = Command.APPLY_PRESET.concat(presetIndexAPIValue);
+					String response = performPresetControl(command, controllableProperty, true);
+					cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
+					cachedLiveCameraInfo.setLastPreset(String.valueOf(Integer.parseInt(response.substring(Command.PRESET_RESPONSE.length())) + 1));
+					break;
+				}
 			case HOME:
 				performPresetControl(Command.HOME_PRESET, controllableProperty, true);
 				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
@@ -836,7 +838,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createSlider(stats, panTiltSpeedLabelName, labelStart, labelEnd, DeviceConstant.MIN_PAN_TILT_SPEED_UI_VALUE, DeviceConstant.MAX_PAN_TILT_SPEED_UI_VALUE, cachedPanTiltControlSpeed));
 		stats.put(groupName.concat(PanTiltControlMetric.POWER_ON_POSITION.getName()), cachedLiveCameraInfo.getPowerOnPosition().getUiName());
 		stats.put(groupName.concat(PanTiltControlMetric.PT_SPEED_CURRENT_VALUE.getName()), String.valueOf((int) cachedPanTiltControlSpeed));
-		stats.put(groupName.concat(PanTiltControlMetric.PT_ABSOLUTE_POSITION_CONTROL.getName()), convertPanTiltPositionFromApiToUiValue(cachedLiveCameraInfo.getPanTiltPosition()));
+		stats.put(groupName.concat(PanTiltControlMetric.PT_ABSOLUTE_POSITION_CONTROL.getName()),
+				convertPanTiltPositionFromApiToUiValue(getDefaultValueForNullData(cachedLiveCameraInfo.getPanTiltPosition(), DeviceConstant.EMPTY)));
 	}
 
 	/**
@@ -847,7 +850,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param controllableProperty controllable property
 	 * @param value value of controllable property
 	 */
-	private void panTiltControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws FailedLoginException {
+	private void panTiltControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws
+			FailedLoginException {
 		PanTiltControlMetric panTiltControlMetric = PanTiltControlMetric.getByName(controllableProperty);
 		switch (panTiltControlMetric) {
 			case UP:
@@ -861,7 +865,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case DOWN:
@@ -871,11 +875,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				}
 				command = Command.PAN_TILT
 						.concat(DeviceConstant.PAN_STOP_API_VALUE
-								.concat(String.format("%02d", currentCommandValue)));
+								.concat(String.format(DeviceConstant.API_PRESET_FORMAT, currentCommandValue)));
 				performCameraControl(Command.PAN_TILT_DOWN_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case LEFT:
@@ -884,12 +888,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					currentCommandValue = DeviceConstant.MAX_PAN_LEFT_API_VALUE;
 				}
 				command = Command.PAN_TILT
-						.concat(String.format("%02d", currentCommandValue))
+						.concat(String.format(DeviceConstant.API_PRESET_FORMAT, currentCommandValue))
 						.concat(DeviceConstant.PAN_STOP_API_VALUE);
 				performCameraControl(Command.PAN_TILT_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case RIGHT:
@@ -903,7 +907,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case UP_LEFT:
@@ -922,7 +926,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case UP_RIGHT:
@@ -936,7 +940,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case DOWN_RIGHT:
@@ -955,7 +959,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_DOWN_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case DOWN_LEFT:
@@ -969,7 +973,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_DOWN_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
-				retrieveLiveCameraInfo(stats, true);
+				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case HOME:
@@ -1061,7 +1065,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createButton(stats, groupName.concat(ZoomControlMetric.ZOOM_CONTROL_NEAR.getName()), ZoomControlMetric.NEAR.getName(), DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties,
 				createButton(stats, groupName.concat(ZoomControlMetric.ZOOM_CONTROL_FAR.getName()), ZoomControlMetric.FAR.getName(), DeviceConstant.PUSHING));
-		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()), String.valueOf(cachedLiveCameraInfo.getZoomUIValue()));
+		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()),
+				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getZoomUIValue()), DeviceConstant.NONE));
 		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL_SPEED.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()), String.valueOf((int) cachedZoomControlSpeed));
 	}
 
@@ -1087,7 +1092,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					logger.error(e.getMessage());
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
@@ -1110,7 +1115,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					logger.error(e.getMessage());
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
@@ -1133,7 +1138,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					logger.error(e.getMessage());
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
@@ -1146,6 +1151,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				throw new IllegalStateException(String.format("zoom control %s is not supported.", controllableProperty));
 		}
 	}
+	//--------------------------------------------------------------------------------------------------------------------------------
+	//endregion
+
+	//region image adjust control
+	//--------------------------------------------------------------------------------------------------------------------------------
+
 	//--------------------------------------------------------------------------------------------------------------------------------
 	//endregion
 
@@ -1289,13 +1300,20 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @return List<String> list of converted preset entity status
 	 */
 	private List<Character> mapPresetEntityToListPreset(String preset01To40, String preset41To80, String preset81To100) {
-		String binaryString = preset81To100.concat(preset41To80).concat(preset01To40);
-		List<Character> b = binaryString.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
-		List<Character> a = new ArrayList<>();
-		for (int i = b.size() - 1; i >= 0; i--) {
-			a.add(b.get(i));
+		if (StringUtils.isNotNullOrEmpty(preset01To40) && StringUtils.isNotNullOrEmpty(preset41To80) && StringUtils.isNotNullOrEmpty(preset81To100)) {
+			String binaryString = preset81To100.concat(preset41To80).concat(preset01To40);
+
+			// map binary string to list
+			List<Character> b = binaryString.chars().mapToObj(e -> (char) e).collect(Collectors.toList());
+			List<Character> a = new ArrayList<>();
+
+			// revert index of array
+			for (int i = b.size() - 1; i >= 0; i--) {
+				a.add(b.get(i));
+			}
+			return a;
 		}
-		return a;
+		return Collections.emptyList();
 	}
 
 	/**
@@ -1328,9 +1346,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @return float ui value
 	 */
 	private float convertFromApiValueToUIValue(String apiCurrentValueInHex, String apiMaxValueInHex, String apiMinValueInHex, float uiMaxValue, float uiMinValue) {
-		int a = Integer.parseInt(apiCurrentValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
-		int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
-		return a * (uiMaxValue - uiMinValue) / b + uiMinValue;
+		if (StringUtils.isNotNullOrEmpty(apiCurrentValueInHex)) {
+			int a = Integer.parseInt(apiCurrentValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
+			int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
+			return a * (uiMaxValue - uiMinValue) / b + uiMinValue;
+		}
+		return DeviceConstant.DEFAULT_VALUE;
 	}
 
 	/**
