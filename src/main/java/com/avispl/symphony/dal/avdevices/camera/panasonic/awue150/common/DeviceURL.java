@@ -7,7 +7,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
  * URLs which will be accessed
  *
  * @author Harry / Symphony Dev Team<br>
- * Created on 3/8/2022
+ * Created on 10/25/2022
  * @since 1.0.0
  */
 public class DeviceURL {

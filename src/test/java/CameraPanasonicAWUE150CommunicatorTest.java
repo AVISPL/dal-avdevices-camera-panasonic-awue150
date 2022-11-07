@@ -237,7 +237,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -256,7 +256,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -276,7 +276,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.LEFT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.LEFT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -295,7 +295,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.RIGHT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.RIGHT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -314,7 +314,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP_LEFT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP_LEFT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -333,7 +333,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP_RIGHT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.UP_RIGHT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -352,7 +352,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN_LEFT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN_LEFT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -372,7 +372,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN_RIGHT.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.DOWN_RIGHT.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -392,7 +392,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.PAN_TITL_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.HOME.getName();
+		String propertyName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH + PanTiltControlMetric.HOME.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 AVI-SPL, Inc. All Rights Reserved.
+ *  Copyright (c) 2022 AVI-SPL, Inc. All Rights Reserved.
  */
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
 
@@ -12,6 +12,9 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
  */
 public class DeviceConstant {
 
+	/**
+	 * private/ non-parameterized constructor to prevent instance initialization
+	 */
 	private DeviceConstant() {
 	}
 

@@ -1,6 +1,5 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.dto;
 
-
 import java.util.List;
 
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.AutoFocus;
