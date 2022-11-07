@@ -468,12 +468,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String response = sendCameraMonitoringRequest(command, DevicesMetricGroup.SIMULTANEOUS.getName(), true);
 		if (response != null) {
 			String data = response.substring(Command.SIMULTANEOUS.length());
-			cachedLiveCameraInfo.setPanUIValue(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE ));
+			cachedLiveCameraInfo.setPanUIValue(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
 			cachedLiveCameraInfo.setTiltUIValue(data.substring(DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE));
 			cachedLiveCameraInfo.setZoomUIValue(Integer.parseInt(data.substring(DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16));
 
 			int focusUIValue = Integer.parseInt(data.substring(DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
-			if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE){
+			if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
 				focusUIValue = (int) DeviceConstant.MAX_FOCUS_UI_VALUE;
 			}
 			cachedLiveCameraInfo.setFocusUIValue(focusUIValue);
@@ -497,8 +497,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			String request = buildDeviceFullPath(DeviceURL.CAMERA_PTZ_CONTROL
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
-			String response = doGet(request);
-			return response;
+			return doGet(request);
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
@@ -645,8 +644,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					.concat(Command.FOCUS)
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
-			String response = doGet(request);
-			return response;
+			return doGet(request);
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
@@ -673,8 +671,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					.concat(Command.AUTO_FOCUS)
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
-			String response = doGet(request);
-			return response;
+			return doGet(request);
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
@@ -1023,7 +1020,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * This method is used to populate pan tilt control
 	 */
 	private String convertPanTiltPositionFromApiToUiValue(String panTiltData) {
-		if (panTiltData.length() == (DeviceConstant.DEFAULT_PAN_POSITION.length() + DeviceConstant.DEFAULT_TILT_POSITION.length())) {
+		if (panTiltData.length() == DeviceConstant.DEFAULT_PAN_POSITION.length() + DeviceConstant.DEFAULT_TILT_POSITION.length()) {
 			String currentPanValue = panTiltData.substring(0, DeviceConstant.DEFAULT_PAN_POSITION.length());
 			String currentTiltValue = panTiltData.substring(DeviceConstant.DEFAULT_PAN_POSITION.length());
 			String panPosition = String.valueOf((int) convertFromApiValueToUIValue(currentPanValue, DeviceConstant.MAX_PAN_POSITION_API_VALUE,
@@ -1333,7 +1330,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private float convertFromApiValueToUIValue(String apiCurrentValueInHex, String apiMaxValueInHex, String apiMinValueInHex, float uiMaxValue, float uiMinValue) {
 		int a = Integer.parseInt(apiCurrentValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
 		int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
-		return (a * (uiMaxValue - uiMinValue) / b + uiMinValue);
+		return a * (uiMaxValue - uiMinValue) / b + uiMinValue;
 	}
 
 	/**
