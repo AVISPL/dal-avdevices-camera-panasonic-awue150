@@ -21,8 +21,8 @@ public enum ZoomControlMetric {
 	ZOOM_CONTROL_NEAR("ZoomControlNear"),
 	ZOOM_CONTROL_FAR("ZoomControlFar"),
 	CURRENT_VALUE("CurrentValue"),
-	NEAR("Near"),
-	FAR("Far");
+	NEAR("Tele"),
+	FAR("Wide");
 
 	private final String name;
 

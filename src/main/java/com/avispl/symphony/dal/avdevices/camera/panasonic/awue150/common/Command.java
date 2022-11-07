@@ -36,4 +36,16 @@ public class Command {
 	public static final String HASH = "%23";
 	public static final String PAN_TILT = "%23PTS";
 	public static final String SIMULTANEOUS = "PTD";
+	public static final String OPERATION_LOCK_RESPONSE = "OSJ:40:";
+	public static final String OPERATION_LOCK_FULL_RESPONSE = "OSJ:40:0";
+	public static final String FOCUS_POSITION_RESPONSE = "axf";
+	public static final String ZOOM_POSITION_RESPONSE = "axz";
+	public static final String TITLE_RESPONSE = "TITLE:";
+	public static final String PAN_TILT_POSITION_RESPONSE = "aPC";
+	public static final String PRESET_00_RESPONSE = "pE00";
+	public static final String PRESET_01_RESPONSE = "pE01";
+	public static final String PRESET_02_RESPONSE = "pE02";
+	public static final String ERROR_RESPONSE = "ER";
+	public static final char SET_PRESET_SUCCESSFUL_RESPONSE = '1';
+	public static final char DELETE_PRESET_SUCCESSFUL_RESPONSE = '0';
 }

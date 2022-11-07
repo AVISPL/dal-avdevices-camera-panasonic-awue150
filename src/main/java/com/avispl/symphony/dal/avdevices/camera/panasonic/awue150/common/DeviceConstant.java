@@ -51,10 +51,11 @@ public class DeviceConstant {
 	public static final String RIGHT = "Right";
 	public static final String UP_LEFT = "UpLeft";
 	public static final String UP_RIGHT = "UpRight";
-	public static final String DOWN_LEFT_ = "DownLeft";
+	public static final String DOWN_LEFT = "DownLeft";
 	public static final String DOWN_RIGHT = "DownRight";
 	public static final String BASIC = "Basic ";
 	public static final String DIGEST = "Digest ";
+	public static final String PRESET_FORMAT = "%02d";
 	public static final String REGEX_TRAILING_OF_FIELD = "\r\n";
 	public static final String MAX_FOCUS_API_VALUE = "FFF";
 	public static final String MIN_FOCUS_API_VALUE = "555";
@@ -92,5 +93,13 @@ public class DeviceConstant {
 
 	public static final float MAX_ZOOM_SPEED_UI_VALUE = 999f;
 	public static final float MIN_ZOOM_SPEED_UI_VALUE = 1f;
+	public static final int PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE = 4;
+	public static final int PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 4;
+	public static final int TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 8;
+	public static final int ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 11;
+	public static final int FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 13;
+	public static final int PRESET_INDEX_MAX = 100;
+	public static final int PRESET_INDEX_MIN = 1;
+	public static final int DEFAULT_PRESET_INDEX = 0;
 }
 
