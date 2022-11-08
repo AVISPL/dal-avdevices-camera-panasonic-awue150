@@ -136,10 +136,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		}
 		reentrantLock.lock();
 		try {
+
+			final ExtendedStatistics extendedStatistics = new ExtendedStatistics();
+			final Map<String, String> stats = new HashMap<>();
+			final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
 			if (!isEmergencyDelivery) {
-				final ExtendedStatistics extendedStatistics = new ExtendedStatistics();
-				final Map<String, String> stats = new HashMap<>();
-				final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
 
 				if (StringUtils.isNullOrEmpty(authorizationHeader)) {
 					login();
@@ -257,7 +258,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			processRequestHeaders(requestBuilder);
 			response = client.execute(requestBuilder.build());
 
+			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
+			if (401 == statusCode) {
+				throw new FailedLoginException("Failed to login, please check the username and password");
+			}
 			if (httpEntity != null) {
 				// response body
 				return EntityUtils.toString(httpEntity);
@@ -471,30 +476,31 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		if (response != null) {
 			try {
 				// data format PTDffff0000fff00
-				String data = response.substring(Command.SIMULTANEOUS.length());
-				int panUIValue = Integer.parseInt(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
-				int tiltUIValue = Integer.parseInt(data.substring(DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
-				int zoomUIValue = Integer.parseInt(data.substring(DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
-				int focusUIValue = Integer.parseInt(data.substring(DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
+				if (response.length() >= 16) {
+					String data = response.substring(Command.SIMULTANEOUS.length());
+					int panUIValue = Integer.parseInt(data.substring(DeviceConstant.PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
+					int tiltUIValue = Integer.parseInt(data.substring(DeviceConstant.PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
+					cachedLiveCameraInfo.setPanUIValue(panUIValue);
+					cachedLiveCameraInfo.setTiltUIValue(tiltUIValue);
+					int zoomUIValue = Integer.parseInt(data.substring(DeviceConstant.TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
+					int focusUIValue = Integer.parseInt(data.substring(DeviceConstant.ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE, DeviceConstant.FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE), 16);
 
-				cachedLiveCameraInfo.setPanUIValue(panUIValue);
-				cachedLiveCameraInfo.setTiltUIValue(tiltUIValue);
+					if (zoomUIValue > DeviceConstant.MAX_ZOOM_UI_VALUE) {
+						zoomUIValue = (int) DeviceConstant.MAX_ZOOM_UI_VALUE;
+					}
+					if (zoomUIValue < DeviceConstant.MIN_ZOOM_UI_VALUE) {
+						zoomUIValue = (int) DeviceConstant.MIN_ZOOM_UI_VALUE;
+					}
+					cachedLiveCameraInfo.setZoomUIValue(zoomUIValue);
 
-				if (zoomUIValue > DeviceConstant.MAX_ZOOM_UI_VALUE) {
-					zoomUIValue = (int) DeviceConstant.MAX_ZOOM_UI_VALUE;
+					if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
+						focusUIValue = (int) DeviceConstant.MAX_FOCUS_UI_VALUE;
+					}
+					if (focusUIValue < DeviceConstant.MIN_FOCUS_UI_VALUE) {
+						focusUIValue = (int) DeviceConstant.MIN_FOCUS_UI_VALUE;
+					}
+					cachedLiveCameraInfo.setFocusUIValue(focusUIValue);
 				}
-				if (zoomUIValue < DeviceConstant.MIN_ZOOM_UI_VALUE) {
-					zoomUIValue = (int) DeviceConstant.MIN_ZOOM_UI_VALUE;
-				}
-				cachedLiveCameraInfo.setZoomUIValue(zoomUIValue);
-
-				if (focusUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
-					focusUIValue = (int) DeviceConstant.MAX_FOCUS_UI_VALUE;
-				}
-				if (focusUIValue < DeviceConstant.MIN_FOCUS_UI_VALUE) {
-					focusUIValue = (int) DeviceConstant.MIN_FOCUS_UI_VALUE;
-				}
-				cachedLiveCameraInfo.setFocusUIValue(focusUIValue);
 			} catch (Exception e) {
 				logger.error(String.format("error while deserializing simultaneous information: %s", e.getMessage()), e);
 				updateFailedMonitor(DevicesMetricGroup.SYSTEM_INFO.getName(), "error while deserializing system information");
@@ -521,8 +527,9 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (retryOnUnAuthorized) {
 				login();
 				sendCameraMonitoringRequest(request, monitoringGroup, false);
+			} else {
+				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			throw new FailedLoginException("Failed to login, please check the username and password");
 		} catch (Exception e) {
 			logger.error(String.format("error while receive %s: %s", monitoringGroup, e.getMessage()));
 			updateFailedMonitor(monitoringGroup, String.format("error while receive %s: %s", monitoringGroup, e.getMessage()));
@@ -586,12 +593,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 				String responseValueInHex = performFocusControl(currentValueInHex.toUpperCase(), controllableProperty, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
-
-				// device need 2s to apply new focus control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateFocusControls(stats, advancedControllableProperties);
@@ -611,12 +616,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						DeviceConstant.MIN_FOCUS_UI_VALUE);
 				responseValueInHex = performFocusControl(currentValueInHex.toUpperCase(), controllableProperty, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
-
-				// device need 2s to apply new focus control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateFocusControls(stats, advancedControllableProperties);
@@ -637,11 +640,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				responseValueInHex = performFocusControl(currentValueInHex.toUpperCase(), controllableProperty, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
 
-				// device need 2s to apply new focus control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateFocusControls(stats, advancedControllableProperties);
@@ -692,8 +694,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (retryOnUnAuthorized) {
 				login();
 				performFocusControl(command, controllableProperty, false);
+			} else {
+				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			throw new FailedLoginException("Failed to login, please check the username and password");
+			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Error while controlling %s: %s", controllableProperty, e.getMessage()), e);
 		}
@@ -719,8 +723,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (retryOnUnAuthorized) {
 				login();
 				performAutoFocusControl(command, controllableProperty, false);
+			} else {
+				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			throw new FailedLoginException("Failed to login, please check the username and password");
+			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Error while controlling %s: %s", controllableProperty, e.getMessage()), e);
 		}
@@ -850,8 +856,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (retryOnUnAuthorized) {
 				login();
 				performPresetControl(command, controllableProperty, false);
+			} else {
+				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			throw new FailedLoginException("Failed to login, please check the username and password");
+			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Error while controlling %s: %s", controllableProperty, e.getMessage()), e);
 		}
@@ -916,6 +924,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -930,6 +943,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_DOWN_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -944,6 +962,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -958,6 +981,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -977,6 +1005,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -991,6 +1024,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_UP_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -1010,6 +1048,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_DOWN_RIGHT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -1024,6 +1067,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				performCameraControl(Command.PAN_TILT_DOWN_LEFT_DEFAULT, controllableProperty, true);
 				performCameraControl(command, controllableProperty, true);
 				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, true);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				retrieveLiveCameraInfo(stats);
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
@@ -1064,8 +1112,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (retryOnUnAuthorized) {
 				login();
 				performAutoFocusControl(command, controllableProperty, false);
+			} else {
+				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			throw new FailedLoginException("Failed to login, please check the username and password");
+			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Error while controlling %s: %s", controllableProperty, e.getMessage()), e);
 		}
@@ -1141,11 +1191,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				String responseValueInHex = performCameraControl(command, controllableProperty, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
-				// Device need 2s to apply new zoom control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
@@ -1166,11 +1215,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				responseValueInHex = performCameraControl(command, controllableProperty, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
-				// Device need 2s to apply new zoom control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
@@ -1191,11 +1239,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				responseValueInHex = performCameraControl(command, controllableProperty, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
-				// Device need 2s to apply new zoom control value. device will return an incorrect value if communicator send data query request immediately
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					logger.error(e.getMessage());
+					e.printStackTrace();
 				}
 				retrieveSimultaneous();
 				populateZoomControls(stats, advancedControllableProperties);
