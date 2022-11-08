@@ -106,5 +106,9 @@ public class DeviceConstant {
 	public static final int PRESET_INDEX_MIN = 1;
 	public static final int DEFAULT_PRESET_INDEX = 0;
 	public static final int DEFAULT_VALUE= 0;
+	public static final int FOCUS_UI_API_CONVERT_FACTOR = 110;
+	public static final int ZOOM_UI_API_CONVERT_FACTOR = 1010;
+	public static final int PAN_UI_API_CONVERT_FACTOR = 350;
+	public static final int TILT_UI_API_CONVERT_FACTOR = 240;
 }
 

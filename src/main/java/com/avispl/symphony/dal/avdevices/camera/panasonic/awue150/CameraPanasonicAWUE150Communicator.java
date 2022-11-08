@@ -546,7 +546,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String focusControlLabelEnd = String.valueOf((int) DeviceConstant.MAX_FOCUS_UI_VALUE);
 		String focusSpeedControlLabelStart = String.valueOf((int) DeviceConstant.MIN_FOCUS_SPEED_UI_VALUE);
 		Float currentFocusPosition = convertFromApiValueToUIValue(getDefaultValueForNullData(cachedLiveCameraInfo.getFocusPosition(), DeviceConstant.EMPTY),
-				DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE, DeviceConstant.MIN_FOCUS_UI_VALUE);
+				DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.FOCUS_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_FOCUS_UI_VALUE);
 		addAdvanceControlProperties(advancedControllableProperties, createSlider(stats, groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()), focusControlLabelStart, focusControlLabelEnd,
 				DeviceConstant.MIN_FOCUS_UI_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE, currentFocusPosition));
 		addAdvanceControlProperties(advancedControllableProperties,
@@ -599,7 +599,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			case FOCUS_CONTROL_FAR:
 				lockFocusControl(controllableProperty);
 				Float currentUIValue = convertFromApiValueToUIValue(cachedLiveCameraInfo.getFocusPosition(),
-						DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE, DeviceConstant.MIN_FOCUS_UI_VALUE) + cachedFocusControlSpeed;
+						DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.FOCUS_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_FOCUS_UI_VALUE) + cachedFocusControlSpeed;
 				if (currentUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
 					currentUIValue = DeviceConstant.MAX_FOCUS_UI_VALUE;
 				}
@@ -624,7 +624,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			case FOCUS_CONTROL_NEAR:
 				lockFocusControl(controllableProperty);
 				currentUIValue = convertFromApiValueToUIValue(cachedLiveCameraInfo.getFocusPosition(), DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE,
-						DeviceConstant.MAX_FOCUS_UI_VALUE, DeviceConstant.MIN_FOCUS_UI_VALUE) - cachedFocusControlSpeed;
+						DeviceConstant.FOCUS_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_FOCUS_UI_VALUE) - cachedFocusControlSpeed;
 				if (currentUIValue > DeviceConstant.MAX_FOCUS_UI_VALUE) {
 					currentUIValue = DeviceConstant.MAX_FOCUS_UI_VALUE;
 				}
@@ -1079,9 +1079,9 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			String currentPanValue = panTiltData.substring(0, DeviceConstant.DEFAULT_PAN_POSITION.length());
 			String currentTiltValue = panTiltData.substring(DeviceConstant.DEFAULT_PAN_POSITION.length());
 			String panPosition = String.valueOf((int) convertFromApiValueToUIValue(currentPanValue, DeviceConstant.MAX_PAN_POSITION_API_VALUE,
-					DeviceConstant.MIN_PAN_POSITION_API_VALUE, DeviceConstant.MAX_PAN_POSITION_UI, DeviceConstant.MIN_PAN_POSITION_UI));
+					DeviceConstant.MIN_PAN_POSITION_API_VALUE, DeviceConstant.PAN_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_PAN_POSITION_UI));
 			String tiltPosition = String.valueOf((int) convertFromApiValueToUIValue(currentTiltValue, DeviceConstant.MAX_TILT_POSITION_API_VALUE,
-					DeviceConstant.MIN_TILT_POSITION_API_VALUE, DeviceConstant.MAX_TILT_POSITION_UI, DeviceConstant.MIN_TILT_POSITION_UI));
+					DeviceConstant.MIN_TILT_POSITION_API_VALUE, DeviceConstant.TILT_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_TILT_POSITION_UI));
 			return String.format("Pan %s, tilt %s", panPosition, tiltPosition);
 		}
 		return DeviceConstant.NONE;
@@ -1106,7 +1106,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String zoomControlLabelEnd = String.valueOf((int) DeviceConstant.MAX_ZOOM_UI_VALUE);
 		String zoomSpeedControlLabelStart = String.valueOf((int) DeviceConstant.MIN_ZOOM_SPEED_UI_VALUE);
 		Float currentFocusPosition = convertFromApiValueToUIValue(cachedLiveCameraInfo.getZoomPosition(),
-				DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE, DeviceConstant.MIN_ZOOM_UI_VALUE);
+				DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.ZOOM_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_ZOOM_UI_VALUE);
 		addAdvanceControlProperties(advancedControllableProperties, createSlider(stats, groupName.concat(ZoomControlMetric.ZOOM_CONTROL.getName()), zoomControlLabelStart, zoomControlLabelEnd,
 				DeviceConstant.MIN_ZOOM_UI_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE, currentFocusPosition));
 		addAdvanceControlProperties(advancedControllableProperties,
@@ -1152,7 +1152,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				break;
 			case ZOOM_CONTROL_FAR:
 				Float currentUIValue = convertFromApiValueToUIValue(cachedLiveCameraInfo.getZoomPosition(),
-						DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE, DeviceConstant.MIN_ZOOM_UI_VALUE) + cachedZoomControlSpeed;
+						DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.ZOOM_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_ZOOM_UI_VALUE) + cachedZoomControlSpeed;
 				if (currentUIValue > DeviceConstant.MAX_ZOOM_UI_VALUE) {
 					currentUIValue = DeviceConstant.MAX_ZOOM_UI_VALUE;
 				}
@@ -1177,7 +1177,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				break;
 			case ZOOM_CONTROL_NEAR:
 				currentUIValue = convertFromApiValueToUIValue(cachedLiveCameraInfo.getZoomPosition(),
-						DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE, DeviceConstant.MIN_ZOOM_UI_VALUE) - cachedZoomControlSpeed;
+						DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.ZOOM_UI_API_CONVERT_FACTOR, DeviceConstant.MIN_ZOOM_UI_VALUE) - cachedZoomControlSpeed;
 				if (currentUIValue > DeviceConstant.MAX_ZOOM_UI_VALUE) {
 					currentUIValue = DeviceConstant.MAX_ZOOM_UI_VALUE;
 				}
@@ -1399,14 +1399,14 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param apiCurrentValueInHex current api value of property in hex
 	 * @param apiMaxValueInHex max api value of property in hex
 	 * @param apiMinValueInHex min api value of property in hex
-	 * @param uiMaxValue max ui value of properties
+	 * @param convertFactor UI to API convert factor
 	 * @return float ui value
 	 */
-	private float convertFromApiValueToUIValue(String apiCurrentValueInHex, String apiMaxValueInHex, String apiMinValueInHex, float uiMaxValue, float uiMinValue) {
+	private float convertFromApiValueToUIValue(String apiCurrentValueInHex, String apiMaxValueInHex, String apiMinValueInHex, int convertFactor, float uiMinValue) {
 		if (StringUtils.isNotNullOrEmpty(apiCurrentValueInHex)) {
 			int a = Integer.parseInt(apiCurrentValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
 			int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
-			return a * (uiMaxValue - uiMinValue) / b + uiMinValue;
+			return (float) a * convertFactor / b + uiMinValue;
 		}
 		return DeviceConstant.DEFAULT_VALUE;
 	}
