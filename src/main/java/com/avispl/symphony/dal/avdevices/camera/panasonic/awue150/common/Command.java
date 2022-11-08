@@ -25,7 +25,7 @@ public class Command {
 
 	// Preset commands
 	public static final String SET_PRESET = "M";
-	public static final String APPLY_PRESET = "M";
+	public static final String APPLY_PRESET = "R";
 	public static final String DELETE_PRESET = "C";
 	public static final String HOME_PRESET = "APC80008000";
 	public static final String PRESET_RESPONSE = "s";

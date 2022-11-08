@@ -18,11 +18,11 @@ public enum ZoomControlMetric {
 	// Static metric
 	ZOOM_CONTROL_SPEED("ZoomControlSpeed"),
 	ZOOM_CONTROL("ZoomControl"),
-	ZOOM_CONTROL_NEAR("ZoomControlTele"),
-	ZOOM_CONTROL_FAR("ZoomControlWide"),
+	ZOOM_CONTROL_NEAR("ZoomControlWide"),
+	ZOOM_CONTROL_FAR("ZoomControlTele"),
 	CURRENT_VALUE("CurrentValue"),
-	NEAR("Tele"),
-	FAR("Wide");
+	NEAR("Wide"),
+	FAR("Tele");
 
 	private final String name;
 

@@ -30,8 +30,8 @@ public class LiveCameraInfo {
 	private List<Character> presetEntitiesStatus;
 	private String zoomPosition;
 
-	private String panUIValue;
-	private String tiltUIValue;
+	private int panUIValue;
+	private int tiltUIValue;
 	private int zoomUIValue;
 	private int focusUIValue;
 
@@ -274,7 +274,7 @@ public class LiveCameraInfo {
 	 *
 	 * @return value of {@link #panUIValue}
 	 */
-	public String getPanUIValue() {
+	public int getPanUIValue() {
 		return panUIValue;
 	}
 
@@ -283,7 +283,7 @@ public class LiveCameraInfo {
 	 *
 	 * @param panUIValue new value of {@link #panUIValue}
 	 */
-	public void setPanUIValue(String panUIValue) {
+	public void setPanUIValue(int panUIValue) {
 		this.panUIValue = panUIValue;
 	}
 
@@ -292,7 +292,7 @@ public class LiveCameraInfo {
 	 *
 	 * @return value of {@link #tiltUIValue}
 	 */
-	public String getTiltUIValue() {
+	public int getTiltUIValue() {
 		return tiltUIValue;
 	}
 
@@ -301,7 +301,7 @@ public class LiveCameraInfo {
 	 *
 	 * @param tiltUIValue new value of {@link #tiltUIValue}
 	 */
-	public void setTiltUIValue(String tiltUIValue) {
+	public void setTiltUIValue(int tiltUIValue) {
 		this.tiltUIValue = tiltUIValue;
 	}
 
