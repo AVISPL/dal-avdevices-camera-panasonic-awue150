@@ -65,6 +65,10 @@ public class DeviceConstant {
 	public static final String MIN_FOCUS_API_VALUE = "555";
 	public static final String MAX_ZOOM_API_VALUE = "FFF";
 	public static final String MIN_ZOOM_API_VALUE = "555";
+
+	public static final String MAX_IRIS_API_VALUE = "FFF";
+	public static final String MIN_IRIS_API_VALUE_WITH_2160P_FORMAT = "6DB";
+	public static final String MIN_IRIS_API_VALUE_WITH_1080P_FORMAT = "6DB";
 	public static final int MIN_PAN_LEFT_API_VALUE = 01;
 	public static final int MAX_PAN_LEFT_API_VALUE = 49;
 	public static final String PAN_STOP_API_VALUE = "50";
@@ -87,14 +91,16 @@ public class DeviceConstant {
 	public static final float MAX_TILT_POSITION_UI = 210f;
 	public static final float MAX_FOCUS_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_UI_VALUE = 0f;
+	public static final float MAX_IRIS_UI_VALUE = 25.5f;
+	public static final float MIN_IRIS_UI_VALUE_WITH_1080P_FORMAT = 2.8f;
+	public static final float MIN_IRIS_UI_VALUE_WITH_2160P_FORMAT = 2.9f;
+
 	public static final float MAX_FOCUS_SPEED_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_SPEED_UI_VALUE = 1f;
 	public static final float MAX_PAN_TILT_SPEED_UI_VALUE = 50f;
 	public static final float MIN_PAN_TILT_SPEED_UI_VALUE = 1f;
-
 	public static final float MAX_ZOOM_UI_VALUE = 999f;
 	public static final float MIN_ZOOM_UI_VALUE = 0f;
-
 	public static final float MAX_ZOOM_SPEED_UI_VALUE = 999f;
 	public static final float MIN_ZOOM_SPEED_UI_VALUE = 1f;
 	public static final int PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE = 0;
@@ -102,13 +108,15 @@ public class DeviceConstant {
 	public static final int TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 8;
 	public static final int ZOOM_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 11;
 	public static final int FOCUS_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 13;
+	public static final int IRIS_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 15;
 	public static final int PRESET_INDEX_MAX = 100;
 	public static final int PRESET_INDEX_MIN = 1;
 	public static final int DEFAULT_PRESET_INDEX = 0;
 	public static final int DEFAULT_VALUE= 0;
-	public static final int FOCUS_UI_API_CONVERT_FACTOR = 110;
-	public static final int ZOOM_UI_API_CONVERT_FACTOR = 1010;
-	public static final int PAN_UI_API_CONVERT_FACTOR = 350;
-	public static final int TILT_UI_API_CONVERT_FACTOR = 240;
+	public static final float FOCUS_UI_API_CONVERT_FACTOR = 95;
+	public static final float ZOOM_UI_API_CONVERT_FACTOR = 999;
+	public static final float PAN_UI_API_CONVERT_FACTOR = 350;
+	public static final float TILT_UI_API_CONVERT_FACTOR = 240;
+	public static final float IRIS_UI_API_CONVERT_FACTOR = 25.5f;
 }
 
