@@ -3,8 +3,13 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.dto;
 import java.util.List;
 
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.AutoFocus;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBMode;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Gain;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.NightDayFilter;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Shutter;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt.PowerOnPosition;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.OperationLock;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.OutputFormat;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.PowerStatus;
 
 /**
@@ -29,11 +34,17 @@ public class LiveCameraInfo {
 	private String preset81To100;
 	private List<Character> presetEntitiesStatus;
 	private String zoomPosition;
-
+	private NightDayFilter nighDayFilter;
+	private AWBMode awbMode;
+	private Shutter shutter;
+	private Gain gain;
+	private String irisPosition;
+	private OutputFormat outputFormat;
 	private int panUIValue;
 	private int tiltUIValue;
 	private int zoomUIValue;
 	private int focusUIValue;
+	private float irisUIValue;
 
 	/**
 	 * Retrieves {@link #focusPosition}
@@ -270,6 +281,96 @@ public class LiveCameraInfo {
 	}
 
 	/**
+	 * Retrieves {@link #nighDayFilter}
+	 *
+	 * @return value of {@link #nighDayFilter}
+	 */
+	public NightDayFilter getNighDayFilter() {
+		return nighDayFilter;
+	}
+
+	/**
+	 * Sets {@link #nighDayFilter} value
+	 *
+	 * @param nighDayFilter new value of {@link #nighDayFilter}
+	 */
+	public void setNighDayFilter(NightDayFilter nighDayFilter) {
+		this.nighDayFilter = nighDayFilter;
+	}
+
+	/**
+	 * Retrieves {@link #awbMode}
+	 *
+	 * @return value of {@link #awbMode}
+	 */
+	public AWBMode getAwbMode() {
+		return awbMode;
+	}
+
+	/**
+	 * Sets {@link #awbMode} value
+	 *
+	 * @param awbMode new value of {@link #awbMode}
+	 */
+	public void setAwbMode(AWBMode awbMode) {
+		this.awbMode = awbMode;
+	}
+
+	/**
+	 * Retrieves {@link #shutter}
+	 *
+	 * @return value of {@link #shutter}
+	 */
+	public Shutter getShutter() {
+		return shutter;
+	}
+
+	/**
+	 * Sets {@link #shutter} value
+	 *
+	 * @param shutter new value of {@link #shutter}
+	 */
+	public void setShutter(Shutter shutter) {
+		this.shutter = shutter;
+	}
+
+	/**
+	 * Retrieves {@link #gain}
+	 *
+	 * @return value of {@link #gain}
+	 */
+	public Gain getGain() {
+		return gain;
+	}
+
+	/**
+	 * Sets {@link #gain} value
+	 *
+	 * @param gain new value of {@link #gain}
+	 */
+	public void setGain(Gain gain) {
+		this.gain = gain;
+	}
+
+	/**
+	 * Retrieves {@link #irisPosition}
+	 *
+	 * @return value of {@link #irisPosition}
+	 */
+	public String getIrisPosition() {
+		return irisPosition;
+	}
+
+	/**
+	 * Sets {@link #irisPosition} value
+	 *
+	 * @param irisPosition new value of {@link #irisPosition}
+	 */
+	public void setIrisPosition(String irisPosition) {
+		this.irisPosition = irisPosition;
+	}
+
+	/**
 	 * Retrieves {@link #panUIValue}
 	 *
 	 * @return value of {@link #panUIValue}
@@ -339,5 +440,41 @@ public class LiveCameraInfo {
 	 */
 	public void setFocusUIValue(int focusUIValue) {
 		this.focusUIValue = focusUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #irisUIValue}
+	 *
+	 * @return value of {@link #irisUIValue}
+	 */
+	public float getIrisUIValue() {
+		return irisUIValue;
+	}
+
+	/**
+	 * Sets {@link #irisUIValue} value
+	 *
+	 * @param irisUIValue new value of {@link #irisUIValue}
+	 */
+	public void setIrisUIValue(float irisUIValue) {
+		this.irisUIValue = irisUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #outputFormat}
+	 *
+	 * @return value of {@link #outputFormat}
+	 */
+	public OutputFormat getOutputFormat() {
+		return outputFormat;
+	}
+
+	/**
+	 * Sets {@link #outputFormat} value
+	 *
+	 * @param outputFormat new value of {@link #outputFormat}
+	 */
+	public void setOutputFormat(OutputFormat outputFormat) {
+		this.outputFormat = outputFormat;
 	}
 }

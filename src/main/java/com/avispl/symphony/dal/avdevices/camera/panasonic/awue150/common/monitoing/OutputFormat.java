@@ -14,10 +14,11 @@ import java.util.Optional;
  * Created on 10/27/2022
  * @since 1.0.0
  */
-public enum OutputFormatMetric {
+public enum OutputFormat {
 
 	FORMAT_720_60P("720/59.94p", "OSA:87:0x01"),
 	FORMAT_720_50P("720/50p", "OSA:87:0x02"),
+
 	FORMAT_1080_60I("1080/59.94i", "OSA:87:0x0OSA:87:0x4"),
 	FORMAT_1080_50I("1080/50i", "OSA:87:0x05"),
 	FORMAT_1080_30PSF("1080/29.97psF", "OSA:87:0x07"),
@@ -46,7 +47,7 @@ public enum OutputFormatMetric {
 	 * @param uiName ui name of video output format
 	 * @param apiName api name of video output format
 	 */
-	OutputFormatMetric(String uiName, String apiName) {
+	OutputFormat(String uiName, String apiName) {
 		this.uiName = uiName;
 		this.apiName = apiName;
 	}
@@ -75,9 +76,9 @@ public enum OutputFormatMetric {
 	 * @param apiValues is the set of live camera info value
 	 * @return outputFormat is the output format that want to get
 	 */
-	public static OutputFormatMetric getByAPIValue(Map<String, String> apiValues) {
-		Optional<OutputFormatMetric> outputFormat = Arrays.stream(OutputFormatMetric.values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst();
-		return outputFormat.orElse(OutputFormatMetric.ERROR);
+	public static OutputFormat getByAPIValue(Map<String, String> apiValues) {
+		Optional<OutputFormat> outputFormat = Arrays.stream(OutputFormat.values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst();
+		return outputFormat.orElse(OutputFormat.ERROR);
 	}
 }
 

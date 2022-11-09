@@ -53,6 +53,12 @@ public class Command {
 	public static final String ZOOM = "AXZ";
 	public static final String ZOOM_POSITION_RESPONSE = "axz";
 
+	// Image adjust
+	public static final String IRIS = "AXI";
+	public static final String IRIS_POSITION_RESPONSE = "axi";
+	public static final String GAIN = "OGU:";
+
+
 
 	// Other commands
 	public static final String SIMULTANEOUS = "PTD";

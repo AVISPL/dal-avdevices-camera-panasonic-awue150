@@ -173,6 +173,33 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	}
 
 	/**
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty focus control: push focus near
+	 *
+	 * Expected: control successfully
+	 */
+	@Test
+	void testFocusControlNearWithChangedSpeed() throws Exception {
+		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+		Map<String, String> stats = extendedStatistics.getStatistics();
+		ControllableProperty controllableProperty = new ControllableProperty();
+
+		String propertyName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL_SPEED.getName();
+		String propertyValue = "20.0";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		propertyName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL_NEAR.getName();
+		String propertyCurrentValueName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL.getName() + FocusControlMetric.CURRENT_VALUE.getName();
+		propertyValue = "1";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		Assertions.assertEquals(DeviceConstant.MIN_FOCUS_UI_VALUE, Float.parseFloat(stats.get(propertyCurrentValueName)));
+	}
+
+	/**
 	 * Test SamSungSmartThingsAggregator.controlProperty location management : Change location name
 	 *
 	 * Expected: control successfully
