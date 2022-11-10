@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of Iris modes
@@ -72,8 +71,7 @@ public enum IrisMode {
 	 * @return IrisMode is the IrisMode status that want to get
 	 */
 	public static IrisMode getByAPIValue(Map<String, String> apiValues) {
-		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return irisMode.orElse(IrisMode.ERROR);
+		return Arrays.stream(IrisMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(IrisMode.ERROR);
 	}
 
 	/**
@@ -83,8 +81,7 @@ public enum IrisMode {
 	 * @return iris is the iris mode status that want to get
 	 */
 	public static IrisMode getByCode(String code) {
-		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> status.getCode().equals(code)).findFirst();
-		return irisMode.orElse(IrisMode.ERROR);
+		return Arrays.stream(IrisMode.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(IrisMode.ERROR);
 	}
 
 	/**
@@ -94,8 +91,7 @@ public enum IrisMode {
 	 * @return iris is the iris mode status that want to get
 	 */
 	public static IrisMode getByUiName(String uiName) {
-		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return irisMode.orElse(IrisMode.ERROR);
+		return Arrays.stream(IrisMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(IrisMode.ERROR);
 	}
 }
 

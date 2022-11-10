@@ -18,6 +18,9 @@ import com.avispl.symphony.api.dal.error.ResourceNotReachableException;
  */
 public class DropdownList {
 
+	/**
+	 * private/ non-parameterized constructor to prevent instance initialization
+	 */
 	private DropdownList() {
 	}
 

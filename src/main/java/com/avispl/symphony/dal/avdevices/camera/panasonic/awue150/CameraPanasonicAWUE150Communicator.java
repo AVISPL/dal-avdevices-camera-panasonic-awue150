@@ -47,6 +47,7 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.WebClie
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.AutoFocus;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.FocusADJWithPTZ;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.FocusControlMetric;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBColorTemperature;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Gain;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.ImageAdjustControlMetric;
@@ -264,7 +265,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 	@Override
 	protected void authenticate() throws Exception {
-// The device has its own authentication behavior, do not use the common one
+		// The device has its own authentication behavior, do not use the common one
 	}
 
 	/**
@@ -636,11 +637,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 	/**
 	 * This method is used to check failed monitoring
-
+	 *
 	 * @throws ResourceNotReachableException When all monitoring requests are failed
 	 */
 	private void checkFailedMonitor() {
-		if (failedMonitor.size() >= DeviceConstant.MAX_FAILED_REQUEST ) {
+		if (failedMonitor.size() >= DeviceConstant.MAX_FAILED_REQUEST) {
 			StringBuilder errBuilder = new StringBuilder();
 			for (Map.Entry<String, String> failedMetric : failedMonitor.entrySet()) {
 				errBuilder.append(failedMetric.getValue());
@@ -789,6 +790,21 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		if (AutoFocus.AUTO.equals(cachedLiveCameraInfo.getAutoFocus())) {
 			throw new IllegalStateException(String.format("Failed to control %s, please changing focus mode to manual to control %s", controllableProperty, controllableProperty));
 		}
+	}
+
+	/**
+	 * This method is used to lock focus control
+	 *
+	 * @throws IllegalStateException when autofocus is enabled
+	 */
+	private String convertColorTemperatureFromAPIToUIValue(String colorTemperature) {
+		if (colorTemperature.length() >= 6) {
+			String splits[] = colorTemperature.split(DeviceConstant.COLON);
+			int temperature = Integer.parseInt(splits[0]);
+			String description = AWBColorTemperature.getByAPIName(splits[1]).getUiName();
+			return temperature + DeviceConstant.KELVIN + DeviceConstant.SPACE + description;
+		}
+		return DeviceConstant.NONE;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------
@@ -1310,7 +1326,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		stats.put(groupName.concat(ImageAdjustControlMetric.AWB_R_GAIN.getName()), String.valueOf((int) awbRGain));
 		stats.put(groupName.concat(ImageAdjustControlMetric.AWB_G_GAIN.getName()), String.valueOf((int) awbGGain));
 		stats.put(groupName.concat(ImageAdjustControlMetric.AWB_B_GAIN.getName()), String.valueOf((int) awbBGain));
-		stats.put(groupName.concat(ImageAdjustControlMetric.AWB_COLOR_TEMPERATURE.getName()), cachedLiveCameraInfo.getColorTemperature());
+		stats.put(groupName.concat(ImageAdjustControlMetric.AWB_COLOR_TEMPERATURE.getName()), convertColorTemperatureFromAPIToUIValue(cachedLiveCameraInfo.getColorTemperature()));
 	}
 
 	/**

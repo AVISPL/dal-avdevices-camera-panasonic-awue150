@@ -4,11 +4,9 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image;
 
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
 
 /**
- * Set of AWB modes
+ * Set of AWB color temperature status
  *
  * @author Harry / Symphony Dev Team<br>
  * Created on 10/27/2022
@@ -52,37 +50,15 @@ public enum AWBColorTemperature {
 		return apiName;
 	}
 
-	/**
-	 * This method is used to get AWB mode from api values
-	 *
-	 * @param apiValues is the set of live camera info value
-	 * @return AWBMode is the AWBMode status that want to get
-	 */
-	public static AWBColorTemperature getByAPIValue(Map<String, String> apiValues) {
-		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return awbMode.orElse(AWBColorTemperature.VALID);
-	}
 
 	/**
-	 * This method is used to get AWB mode from ui value
+	 * This method is used to get AWB color temperature from api value
 	 *
-	 * @param uiName is ui name of AWBMode
-	 * @return AWBMode is the AWBMode status that want to get
-	 */
-	public static AWBColorTemperature getByUIName(String uiName) {
-		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return awbMode.orElse(AWBColorTemperature.VALID);
-	}
-
-	/**
-	 * This method is used to get AWB mode from api values
-	 *
-	 * @param apiName is api name of AWBMode
-	 * @return AWBMode is the AWBMode status that want to get
+	 * @param apiName is api name of AWB color temperature
+	 * @return AWBColorTemperature is the AWB Color Temperature status that want to get
 	 */
 	public static AWBColorTemperature getByAPIName(String apiName) {
-		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return awbMode.orElse(AWBColorTemperature.VALID);
+		return Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(AWBColorTemperature.VALID);
 	}
 }
 

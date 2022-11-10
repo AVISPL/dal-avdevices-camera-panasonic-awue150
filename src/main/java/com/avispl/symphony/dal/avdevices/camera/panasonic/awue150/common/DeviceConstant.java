@@ -26,7 +26,7 @@ public class DeviceConstant {
 	public static final String EQUAL = "=";
 	public static final String RIGHT_PARENTHESES = ")";
 	public static final String LEFT_PARENTHESES = "(";
-	public static final String DASH = "-";
+	public static final String KELVIN = "K";
 	public static final String SPACE = " ";
 	public static final String EMPTY = "";
 	public static final String HTTPS = "http://";

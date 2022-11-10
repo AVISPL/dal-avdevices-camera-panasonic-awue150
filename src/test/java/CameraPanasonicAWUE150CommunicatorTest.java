@@ -33,6 +33,7 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.control
  * @version 1.0
  * @since 1.0
  */
+@Tag("RealDevice")
 class CameraPanasonicAWUE150CommunicatorTest {
 	private final CameraPanasonicAWUE150Communicator cameraPanasonicAWUE150Communicator = new CameraPanasonicAWUE150Communicator();
 
@@ -56,7 +57,6 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	 * Test CameraPanasonicAWUE150Communicator.getMultipleStatistics successful with valid username password
 	 * Expected retrieve valid device monitoring data
 	 */
-	@Tag("RealDevice")
 	@Test
 	void testHaivisionX4DecoderCommunicatorGetMonitoringDataSuccessful() throws Exception {
 		ExtendedStatistics statistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
@@ -77,7 +77,6 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	 * Test CameraPanasonicAWUE150Communicator.getMultipleStatistics failed with invalid username password
 	 * Expected throw login exception
 	 */
-	@Tag("RealDevice")
 	@Test
 	void testCameraAWUE150CommunicatorGetMonitoringDataFailed() throws Exception {
 		CameraPanasonicAWUE150Communicator cameraPanasonicAWUE150CommunicatorSpy = Mockito.spy(CameraPanasonicAWUE150Communicator.class);

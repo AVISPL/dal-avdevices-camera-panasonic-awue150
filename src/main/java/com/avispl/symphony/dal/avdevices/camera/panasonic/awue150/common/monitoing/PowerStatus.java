@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of power status
@@ -27,7 +26,7 @@ public enum PowerStatus {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of power status
-	 * @param apiName  api name of power status
+	 * @param apiName api name of power status
 	 */
 	PowerStatus(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -59,8 +58,7 @@ public enum PowerStatus {
 	 * @return powerStatus is the power status that want to get
 	 */
 	public static PowerStatus getByAPIValue(Map<String, String> apiValues) {
-		Optional<PowerStatus> powerStatus = Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return powerStatus.orElse(PowerStatus.ERROR);
+		return Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(PowerStatus.ERROR);
 	}
 }
 
