@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2022 AVI-SPL, Inc. All Rights Reserved.
+ */
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
 
 import java.nio.charset.StandardCharsets;

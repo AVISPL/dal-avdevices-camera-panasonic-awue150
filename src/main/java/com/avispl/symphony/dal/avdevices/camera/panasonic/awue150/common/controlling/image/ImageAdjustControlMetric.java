@@ -24,7 +24,7 @@ public enum ImageAdjustControlMetric {
 	ABB_RESET("ABBReset"),
 	SHUTTER("Shutter"),
 	ND_FILTER("NDFilter"),
-	AWB_COLOR_TEMPERATURE("AWBColorTemperature "),
+	AWB_COLOR_TEMPERATURE("AWBColorTemperature"),
 	AWB_R_GAIN("AWBRGain"),
 	AWB_B_GAIN("AWBBGain"),
 	AWB_G_GAIN("AWBGGain"),

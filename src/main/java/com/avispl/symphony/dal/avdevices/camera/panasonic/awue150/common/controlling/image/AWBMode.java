@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of AWB modes
@@ -62,8 +61,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByAPIValue(Map<String, String> apiValues) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+		return Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(AWBMode.AUTO);
 	}
 
 	/**
@@ -73,8 +71,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByUIName(String uiName) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+		return Arrays.stream(AWBMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(AWBMode.AUTO);
 	}
 
 	/**
@@ -84,8 +81,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByAPIName(String apiName) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+		return Arrays.stream(AWBMode.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(AWBMode.AUTO);
 	}
 }
 

@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of gain modes
@@ -101,8 +100,7 @@ public enum Gain {
 	 * @return Shutter is the Shutter status that want to get
 	 */
 	public static Gain getByAPIValue(Map<String, String> apiValues) {
-		Optional<Gain> gain = Arrays.stream(Gain.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return gain.orElse(G_0);
+		return Arrays.stream(Gain.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -112,8 +110,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByUIName(String uiName) {
-		Optional<Gain> gain = Arrays.stream(Gain.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return gain.orElse(G_0);
+		return Arrays.stream(Gain.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -123,8 +120,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByAPIName(String apiName) {
-		Optional<Gain> gain = Arrays.stream(Gain.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return gain.orElse(G_0);
+		return Arrays.stream(Gain.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(G_0);
 	}
 }
 

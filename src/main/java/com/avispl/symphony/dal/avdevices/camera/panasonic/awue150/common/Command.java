@@ -13,7 +13,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
 public class Command {
 
 	/**
-	 *  private/ non-parameterized constructor to prevent instance initialization
+	 * private/ non-parameterized constructor to prevent instance initialization
 	 */
 	private Command() {
 	}
@@ -56,8 +56,6 @@ public class Command {
 	public static final String IRIS = "AXI";
 	public static final String IRIS_POSITION_RESPONSE = "axi";
 	public static final String GAIN = "OGU:";
-
-
 
 	// Other commands
 	public static final String SIMULTANEOUS = "PTD";

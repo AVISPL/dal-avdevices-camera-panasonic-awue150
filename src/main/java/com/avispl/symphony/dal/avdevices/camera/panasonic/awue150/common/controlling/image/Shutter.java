@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of shutter modes
@@ -60,8 +59,7 @@ public enum Shutter {
 	 * @return Shutter is the Shutter status that want to get
 	 */
 	public static Shutter getByAPIValue(Map<String, String> apiValues) {
-		Optional<Shutter> shutter = Arrays.stream(Shutter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return shutter.orElse(Shutter.OFF);
+		return Arrays.stream(Shutter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(Shutter.OFF);
 	}
 
 	/**
@@ -71,8 +69,7 @@ public enum Shutter {
 	 * @return ShutterMode is the ShutterMode status that want to get
 	 */
 	public static Shutter getByUIName(String uiName) {
-		Optional<Shutter> shutter = Arrays.stream(Shutter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return shutter.orElse(Shutter.OFF);
+		return Arrays.stream(Shutter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(Shutter.OFF);
 	}
 
 	/**
@@ -82,8 +79,7 @@ public enum Shutter {
 	 * @return ShutterMode is the ShutterMode status that want to get
 	 */
 	public static Shutter getByAPIValue(String apiName) {
-		Optional<Shutter> shutter = Arrays.stream(Shutter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return shutter.orElse(Shutter.OFF);
+		return Arrays.stream(Shutter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(Shutter.OFF);
 	}
 }
 

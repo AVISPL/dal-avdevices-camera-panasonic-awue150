@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of error status
@@ -112,7 +111,7 @@ public enum ErrorStatusInformation {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of error status
-	 * @param apiName  api name of error status
+	 * @param apiName api name of error status
 	 */
 	ErrorStatusInformation(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -144,8 +143,7 @@ public enum ErrorStatusInformation {
 	 * @return errorStatusInformation is the error status that want to get
 	 */
 	public static ErrorStatusInformation getByAPIValue(Map<String, String> apiValues) {
-		Optional<ErrorStatusInformation> errorStatusInformation = Arrays.stream(ErrorStatusInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return errorStatusInformation.orElse(ErrorStatusInformation.ERROR);
+		return Arrays.stream(ErrorStatusInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ErrorStatusInformation.ERROR);
 	}
 }
 

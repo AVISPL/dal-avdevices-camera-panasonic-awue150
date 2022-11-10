@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of night day filter modes
@@ -60,8 +59,8 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the night day filter status that want to get
 	 */
 	public static NightDayFilter getByAPIValue(Map<String, String> apiValues) {
-		Optional<NightDayFilter> nightDayFilter = Arrays.stream(NightDayFilter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return nightDayFilter.orElse(NightDayFilter.THROUGH);
+		return Arrays.stream(NightDayFilter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(THROUGH);
+
 	}
 
 	/**
@@ -71,8 +70,7 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the ND filter status that want to get
 	 */
 	public static NightDayFilter getByUIName(String uiName) {
-		Optional<NightDayFilter> nightDayFilter = Arrays.stream(NightDayFilter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return nightDayFilter.orElse(NightDayFilter.THROUGH);
+		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(THROUGH);
 	}
 
 	/**
@@ -82,8 +80,8 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the ND filter status that want to get
 	 */
 	public static NightDayFilter getByAPIName(String apiName) {
-		Optional<NightDayFilter> nightDayFilter = Arrays.stream(NightDayFilter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return nightDayFilter.orElse(NightDayFilter.THROUGH);
+		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(THROUGH);
+
 	}
 }
 

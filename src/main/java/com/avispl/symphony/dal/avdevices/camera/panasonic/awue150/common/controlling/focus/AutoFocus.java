@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of autofocus status
@@ -17,7 +16,7 @@ import java.util.Optional;
 public enum AutoFocus {
 
 	MANUAL("Manual", "d10", "OAF:0", "0"),
-	AUTO("Auto", "d11","OAF:1", "1"),
+	AUTO("Auto", "d11", "OAF:1", "1"),
 	ERROR("None", "None", "None", "-1");
 
 	private final String uiName;
@@ -29,7 +28,7 @@ public enum AutoFocus {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of autofocus status
-	 * @param apiName1  api name 1 of autofocus status
+	 * @param apiName1 api name 1 of autofocus status
 	 * @param apiName2 api name 2 of autofocus status
 	 * @param code code of autofocus status
 	 */
@@ -83,8 +82,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByAPIValue(Map<String, String> apiValues) {
-		Optional<AutoFocus> autoFocus = Arrays.stream(AutoFocus.values()).filter(status -> apiValues.containsKey(status.getApiName1())).findFirst();
-		return autoFocus.orElse(AutoFocus.ERROR);
+		return Arrays.stream(AutoFocus.values()).filter(status -> apiValues.containsKey(status.getApiName1())).findFirst().orElse(AutoFocus.ERROR);
 	}
 
 	/**
@@ -94,8 +92,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByCode(String code) {
-		Optional<AutoFocus> autoFocus = Arrays.stream(AutoFocus.values()).filter(status -> status.getCode().equals(code)).findFirst();
-		return autoFocus.orElse(AutoFocus.ERROR);
+		return Arrays.stream(AutoFocus.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(AutoFocus.ERROR);
 	}
 
 	/**
@@ -105,8 +102,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByApiName2(String apiName2) {
-		Optional<AutoFocus> autoFocus = Arrays.stream(AutoFocus.values()).filter(status -> status.getApiName2().equals(apiName2)).findFirst();
-		return autoFocus.orElse(AutoFocus.ERROR);
+		return Arrays.stream(AutoFocus.values()).filter(status -> status.getApiName2().equals(apiName2)).findFirst().orElse(AutoFocus.ERROR);
 	}
 }
 
