@@ -106,7 +106,7 @@ public enum Gain {
 	}
 
 	/**
-	 * This method is used to get gain status by uiName values
+	 * This method is used to get gain status by uiName value
 	 *
 	 * @param uiName is the uiName of gain
 	 * @return Gain is the gain status that want to get
@@ -117,7 +117,7 @@ public enum Gain {
 	}
 
 	/**
-	 * This method is used to get gain status by uiName values
+	 * This method is used to get gain status by apiName value
 	 *
 	 * @param apiName is the apiName of gain
 	 * @return Gain is the gain status that want to get

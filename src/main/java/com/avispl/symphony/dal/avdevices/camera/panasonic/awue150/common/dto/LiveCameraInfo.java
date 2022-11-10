@@ -5,6 +5,7 @@ import java.util.List;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.AutoFocus;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Gain;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.IrisMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.NightDayFilter;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Shutter;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt.PowerOnPosition;
@@ -40,6 +41,11 @@ public class LiveCameraInfo {
 	private Gain gain;
 	private String irisPosition;
 	private OutputFormat outputFormat;
+	private IrisMode irisMode;
+	private String awbRGain;
+	private String awbGGain;
+	private String awbBGain;
+	private String colorTemperature;
 	private int panUIValue;
 	private int tiltUIValue;
 	private int zoomUIValue;
@@ -371,6 +377,114 @@ public class LiveCameraInfo {
 	}
 
 	/**
+	 * Retrieves {@link #outputFormat}
+	 *
+	 * @return value of {@link #outputFormat}
+	 */
+	public OutputFormat getOutputFormat() {
+		return outputFormat;
+	}
+
+	/**
+	 * Sets {@link #outputFormat} value
+	 *
+	 * @param outputFormat new value of {@link #outputFormat}
+	 */
+	public void setOutputFormat(OutputFormat outputFormat) {
+		this.outputFormat = outputFormat;
+	}
+
+	/**
+	 * Retrieves {@link #irisMode}
+	 *
+	 * @return value of {@link #irisMode}
+	 */
+	public IrisMode getIrisMode() {
+		return irisMode;
+	}
+
+	/**
+	 * Sets {@link #irisMode} value
+	 *
+	 * @param irisMode new value of {@link #irisMode}
+	 */
+	public void setIrisMode(IrisMode irisMode) {
+		this.irisMode = irisMode;
+	}
+
+	/**
+	 * Retrieves {@link #awbRGain}
+	 *
+	 * @return value of {@link #awbRGain}
+	 */
+	public String getAwbRGain() {
+		return awbRGain;
+	}
+
+	/**
+	 * Sets {@link #awbRGain} value
+	 *
+	 * @param awbRGain new value of {@link #awbRGain}
+	 */
+	public void setAwbRGain(String awbRGain) {
+		this.awbRGain = awbRGain;
+	}
+
+	/**
+	 * Retrieves {@link #awbGGain}
+	 *
+	 * @return value of {@link #awbGGain}
+	 */
+	public String getAwbGGain() {
+		return awbGGain;
+	}
+
+	/**
+	 * Sets {@link #awbGGain} value
+	 *
+	 * @param awbGGain new value of {@link #awbGGain}
+	 */
+	public void setAwbGGain(String awbGGain) {
+		this.awbGGain = awbGGain;
+	}
+
+	/**
+	 * Retrieves {@link #awbBGain}
+	 *
+	 * @return value of {@link #awbBGain}
+	 */
+	public String getAwbBGain() {
+		return awbBGain;
+	}
+
+	/**
+	 * Sets {@link #awbBGain} value
+	 *
+	 * @param awbBGain new value of {@link #awbBGain}
+	 */
+	public void setAwbBGain(String awbBGain) {
+		this.awbBGain = awbBGain;
+	}
+
+	/**
+	 * Retrieves {@link #colorTemperature}
+	 *
+	 * @return value of {@link #colorTemperature}
+	 */
+	public String getColorTemperature() {
+		return colorTemperature;
+	}
+
+	/**
+	 * Sets {@link #colorTemperature} value
+	 *
+	 * @param colorTemperature new value of {@link #colorTemperature}
+	 */
+	public void setColorTemperature(String colorTemperature) {
+		this.colorTemperature = colorTemperature;
+	}
+
+	/**
 	 * Retrieves {@link #panUIValue}
 	 *
 	 * @return value of {@link #panUIValue}
@@ -458,23 +572,5 @@ public class LiveCameraInfo {
 	 */
 	public void setIrisUIValue(float irisUIValue) {
 		this.irisUIValue = irisUIValue;
-	}
-
-	/**
-	 * Retrieves {@link #outputFormat}
-	 *
-	 * @return value of {@link #outputFormat}
-	 */
-	public OutputFormat getOutputFormat() {
-		return outputFormat;
-	}
-
-	/**
-	 * Sets {@link #outputFormat} value
-	 *
-	 * @param outputFormat new value of {@link #outputFormat}
-	 */
-	public void setOutputFormat(OutputFormat outputFormat) {
-		this.outputFormat = outputFormat;
 	}
 }

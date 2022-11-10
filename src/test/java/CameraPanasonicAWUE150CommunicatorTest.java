@@ -20,6 +20,7 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DeviceC
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DeviceInfoMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DevicesMetricGroup;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.FocusControlMetric;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.ImageAdjustControlMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt.PanTiltControlMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.preset.PresetControlMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.zoom.ZoomControlMetric;
@@ -509,5 +510,25 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
 
 		Assertions.assertEquals(DeviceConstant.MIN_ZOOM_UI_VALUE, Float.parseFloat(stats.get(propertyCurrentValueName)));
+	}
+
+	/**
+	 * Test SamSungSmartThingsAggregator.controlProperty location management : Change location name
+	 *
+	 * Expected: control successfully
+	 */
+	@Test
+	void testShutterControlELC() throws Exception {
+		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+		Map<String, String> stats = extendedStatistics.getStatistics();
+		ControllableProperty controllableProperty = new ControllableProperty();
+
+		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.SHUTTER.getName();
+		String propertyValue = "ELC";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		Assertions.assertNull(stats.get(propertyName));
 	}
 }

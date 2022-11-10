@@ -14,14 +14,11 @@ import java.util.Optional;
  * Created on 10/27/2022
  * @since 1.0.0
  */
-public enum AWBMode {
+public enum AWBColorTemperature {
 
-	ATW("ATW", "OAW:0"),
-	AWB_A("AWB A", "OAW:2"),
-	AWB_B("AWB B", "OAW:3"),
-	TEMPERATURE_3200K("3200K", "OAW:4"),
-	TEMPERATURE_5600K("5600K", "OAW:5"),
-	AUTO("VAR", "OAW:9");
+	VALID("Valid", "O"),
+	UNDER("Under", "1"),
+	OVER("Over", "2");
 
 	private final String uiName;
 	private final String apiName;
@@ -32,7 +29,7 @@ public enum AWBMode {
 	 * @param uiName ui name of AWB mode status
 	 * @param apiName api name AWB mode status
 	 */
-	AWBMode(String uiName, String apiName) {
+	AWBColorTemperature(String uiName, String apiName) {
 		this.uiName = uiName;
 		this.apiName = apiName;
 	}
@@ -61,9 +58,9 @@ public enum AWBMode {
 	 * @param apiValues is the set of live camera info value
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
-	public static AWBMode getByAPIValue(Map<String, String> apiValues) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+	public static AWBColorTemperature getByAPIValue(Map<String, String> apiValues) {
+		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
+		return awbMode.orElse(AWBColorTemperature.VALID);
 	}
 
 	/**
@@ -72,9 +69,9 @@ public enum AWBMode {
 	 * @param uiName is ui name of AWBMode
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
-	public static AWBMode getByUIName(String uiName) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+	public static AWBColorTemperature getByUIName(String uiName) {
+		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
+		return awbMode.orElse(AWBColorTemperature.VALID);
 	}
 
 	/**
@@ -83,9 +80,9 @@ public enum AWBMode {
 	 * @param apiName is api name of AWBMode
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
-	public static AWBMode getByAPIName(String apiName) {
-		Optional<AWBMode> awbMode = Arrays.stream(AWBMode.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
-		return awbMode.orElse(AWBMode.AUTO);
+	public static AWBColorTemperature getByAPIName(String apiName) {
+		Optional<AWBColorTemperature> awbMode = Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getApiName().equals(apiName)).findFirst();
+		return awbMode.orElse(AWBColorTemperature.VALID);
 	}
 }
 
