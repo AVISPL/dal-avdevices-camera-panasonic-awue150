@@ -16,22 +16,25 @@ import java.util.Optional;
  */
 public enum IrisMode {
 
-	MANUAL("", "d30"),
-	AUTO("", "d31"),
-	ERROR("None", "None");
+	MANUAL("Manual", "d30", "0"),
+	AUTO("Auto", "d31", "1"),
+	ERROR("None", "None", "0");
 
 	private final String uiName;
 	private final String apiName;
+	private final String code;
 
 	/**
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of iris mode status
 	 * @param apiName api name iris mode status
+	 * @param code code of autofocus status
 	 */
-	IrisMode(String uiName, String apiName) {
+	IrisMode(String uiName, String apiName, String code) {
 		this.uiName = uiName;
 		this.apiName = apiName;
+		this.code = code;
 	}
 
 	/**
@@ -53,13 +56,45 @@ public enum IrisMode {
 	}
 
 	/**
-	 * This method is used to get iris mode from api values
+	 * Retrieves {@link #code}
+	 *
+	 * @return value of {@link #code}
+	 */
+	public String getCode() {
+		return code;
+	}
+
+
+	/**
+	 * This method is used to get iris mode from api value
 	 *
 	 * @param apiValues is the set of live camera info value
 	 * @return IrisMode is the IrisMode status that want to get
 	 */
 	public static IrisMode getByAPIValue(Map<String, String> apiValues) {
 		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
+		return irisMode.orElse(IrisMode.ERROR);
+	}
+
+	/**
+	 * This method is used to get autofocus status by code value
+	 *
+	 * @param code is the code of iris mode
+	 * @return iris is the iris mode status that want to get
+	 */
+	public static IrisMode getByCode(String code) {
+		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> status.getCode().equals(code)).findFirst();
+		return irisMode.orElse(IrisMode.ERROR);
+	}
+
+	/**
+	 * This method is used to get autofocus status by code value
+	 *
+	 * @param uiName is the ui name of iris mode
+	 * @return iris is the iris mode status that want to get
+	 */
+	public static IrisMode getByUiName(String uiName) {
+		Optional<IrisMode> irisMode = Arrays.stream(IrisMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst();
 		return irisMode.orElse(IrisMode.ERROR);
 	}
 }

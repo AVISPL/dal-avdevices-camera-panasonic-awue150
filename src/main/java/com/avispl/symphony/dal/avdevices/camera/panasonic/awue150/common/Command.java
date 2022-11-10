@@ -20,7 +20,6 @@ public class Command {
 
 	// Focus commands
 	public static final String FOCUS = "AXF";
-	public static final String AUTO_FOCUS = "OAF:";
 	public static final String FOCUS_POSITION_RESPONSE = "axf";
 
 	// Preset commands
@@ -66,4 +65,8 @@ public class Command {
 	public static final String OPERATION_LOCK_FULL_RESPONSE = "OSJ:40:0";
 	public static final String ERROR_RESPONSE = "ER";
 	public static final String HASH = "%23";
+	public static final String COLOR_TEMPERATURE = "OSJ:4A:0x";
+	public static final String AWB_R_GAIN = "OSJ:4B:0x";
+	public static final String AWB_G_GAIN = "OSJ:4D:0x";
+	public static final String AWB_B_GAIN = "OSJ:4C:0x";
 }
