@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of shutter modes
@@ -16,11 +15,10 @@ import java.util.Optional;
  */
 public enum Shutter {
 
-	OFF("Off", "OSJ:03:0x0"),
-	STEP("Step", "OSJ:03:0x1"),
-	SYNCHRO("Synchro", "OSJ:03:0x2"),
-	ELC("ELC", "OSJ:03:0x3"),
-	ERROR("None", "None");
+	OFF("Off", "OSJ:03:0"),
+	STEP("Step", "OSJ:03:1"),
+	SYNCHRO("Synchro", "OSJ:03:2"),
+	ELC("ELC", "OSJ:03:3");
 
 	private final String uiName;
 	private final String apiName;
@@ -61,8 +59,27 @@ public enum Shutter {
 	 * @return Shutter is the Shutter status that want to get
 	 */
 	public static Shutter getByAPIValue(Map<String, String> apiValues) {
-		Optional<Shutter> shutter = Arrays.stream(Shutter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return shutter.orElse(Shutter.ERROR);
+		return Arrays.stream(Shutter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(Shutter.OFF);
+	}
+
+	/**
+	 * This method is used to get Shutter mode from ui value
+	 *
+	 * @param uiName is ui name of ShutterMode
+	 * @return ShutterMode is the ShutterMode status that want to get
+	 */
+	public static Shutter getByUIName(String uiName) {
+		return Arrays.stream(Shutter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(Shutter.OFF);
+	}
+
+	/**
+	 * This method is used to get Shutter mode from ui value
+	 *
+	 * @param apiName is api name of ShutterMode
+	 * @return ShutterMode is the ShutterMode status that want to get
+	 */
+	public static Shutter getByAPIValue(String apiName) {
+		return Arrays.stream(Shutter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(Shutter.OFF);
 	}
 }
 

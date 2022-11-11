@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of UHD crop status
@@ -28,7 +27,7 @@ public enum UHDCrop {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of fan status
-	 * @param apiName  api name of fan status
+	 * @param apiName api name of fan status
 	 */
 	UHDCrop(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -60,8 +59,7 @@ public enum UHDCrop {
 	 * @return UHDCrop is the UHD crop status that want to get
 	 */
 	public static UHDCrop getByAPIValue(Map<String, String> apiValues) {
-		Optional<UHDCrop> uhdCrop = Arrays.stream(UHDCrop.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return uhdCrop.orElse(UHDCrop.ERROR);
+		return Arrays.stream(UHDCrop.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(UHDCrop.ERROR);
 	}
 }
 

@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of fan status
@@ -29,7 +28,7 @@ public enum Fan2Status {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of fan status
-	 * @param apiName  api name of fan status
+	 * @param apiName api name of fan status
 	 */
 	Fan2Status(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -61,8 +60,7 @@ public enum Fan2Status {
 	 * @return fanStatus is the fan status that want to get
 	 */
 	public static Fan2Status getByAPIValue(Map<String, String> apiValues) {
-		Optional<Fan2Status> fan1Status = Arrays.stream(Fan2Status.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return fan1Status.orElse(Fan2Status.ERROR);
+		return Arrays.stream(Fan2Status.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(Fan2Status.ERROR);
 	}
 }
 

@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of fan status
@@ -31,7 +30,7 @@ public enum ErrorInformation {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of error information
-	 * @param apiName  api name of error information
+	 * @param apiName api name of error information
 	 */
 	ErrorInformation(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -63,8 +62,7 @@ public enum ErrorInformation {
 	 * @return fanStatus is the fan status that want to get
 	 */
 	public static ErrorInformation getByAPIValue(Map<String, String> apiValues) {
-		Optional<ErrorInformation> fan1Status = Arrays.stream(ErrorInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return fan1Status.orElse(ErrorInformation.ERROR);
+		return Arrays.stream(ErrorInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ErrorInformation.ERROR);
 	}
 }
 
