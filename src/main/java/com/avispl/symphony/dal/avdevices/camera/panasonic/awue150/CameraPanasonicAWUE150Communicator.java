@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -707,7 +708,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						DeviceConstant.MIN_FOCUS_UI_VALUE);
 
 				String command = Command.HASH.concat(Command.FOCUS).concat(currentValueInHex.toUpperCase());
-				String responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				String responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
 				try {
 					Thread.sleep(2000);
@@ -731,7 +732,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				currentValueInHex = convertFromUIValueToAPIValue(currentUIValue, DeviceConstant.MAX_FOCUS_API_VALUE, DeviceConstant.MIN_FOCUS_API_VALUE, DeviceConstant.MAX_FOCUS_UI_VALUE,
 						DeviceConstant.MIN_FOCUS_UI_VALUE);
 				command = Command.HASH.concat(Command.FOCUS).concat(currentValueInHex.toUpperCase());
-				responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
 				try {
 					Thread.sleep(2000);
@@ -755,7 +756,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						DeviceConstant.MIN_FOCUS_UI_VALUE);
 
 				command = Command.HASH.concat(Command.FOCUS).concat(currentValueInHex.toUpperCase());
-				responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setFocusPosition(responseValueInHex.substring(Command.FOCUS.length()));
 				try {
 					Thread.sleep(2000);
@@ -771,7 +772,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				break;
 			case AUTO_FOCUS:
 				AutoFocus autoFocus = AutoFocus.getByCode(value);
-				String response = performCameraControl(autoFocus.getApiName2(), controllableProperty, DeviceURL.CAMERA_CONTROL, true);
+				String response = performCameraControl(autoFocus.getApiNameSecond(), controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
 				autoFocus = AutoFocus.getByApiName2(response);
 				cachedLiveCameraInfo.setAutoFocus(autoFocus);
 				populateFocusControls(stats, advancedControllableProperties);
@@ -800,7 +801,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private String convertColorTemperatureFromAPIToUIValue(String colorTemperature) {
 		if (colorTemperature.length() >= 6) {
 			String splits[] = colorTemperature.split(DeviceConstant.COLON);
-			int temperature = Integer.parseInt(splits[0]);
+			int temperature = Integer.parseInt(splits[0], 16);
 			String description = AWBColorTemperature.getByAPIName(splits[1]).getUiName();
 			return temperature + DeviceConstant.KELVIN + DeviceConstant.SPACE + description;
 		}
@@ -869,14 +870,14 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				break;
 			case SET_PRESET:
 				String command = Command.HASH.concat(Command.SET_PRESET.concat(presetIndexAPIValue));
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				List<Character> presetEntitiesStatus = cachedLiveCameraInfo.getPresetEntitiesStatus();
 				presetEntitiesStatus.set(Integer.parseInt(presetIndexAPIValue), Command.SET_PRESET_SUCCESSFUL_RESPONSE);
 				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
 				break;
 			case DELETE_PRESET:
 				command = Command.HASH.concat(Command.DELETE_PRESET.concat(presetIndexAPIValue));
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				presetEntitiesStatus = cachedLiveCameraInfo.getPresetEntitiesStatus();
 				presetEntitiesStatus.set(Integer.parseInt(presetIndexAPIValue), Command.DELETE_PRESET_SUCCESSFUL_RESPONSE);
 				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
@@ -892,13 +893,13 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					throw new IllegalStateException(String.format("%s is not set, please try another preset", cachedPresetControl));
 				} else {
 					command = Command.HASH.concat(Command.APPLY_PRESET.concat(presetIndexAPIValue));
-					String response = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+					String response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 					cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
 					cachedLiveCameraInfo.setLastPreset(String.valueOf(Integer.parseInt(response.substring(Command.PRESET_RESPONSE.length())) + 1));
 					break;
 				}
 			case HOME:
-				performCameraControl(Command.HASH.concat(Command.HOME_PRESET), controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.HASH.concat(Command.HOME_PRESET), value, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
 				break;
 			default:
@@ -965,8 +966,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(DeviceConstant.PAN_STOP_API_VALUE
 								.concat(String.valueOf(currentCommandValue)));
 //				performCameraControl(Command.PAN_TILT_UP_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -986,8 +987,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(DeviceConstant.PAN_STOP_API_VALUE
 								.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentCommandValue)));
 //				performCameraControl(Command.PAN_TILT_DOWN_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1007,8 +1008,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentCommandValue))
 						.concat(DeviceConstant.PAN_STOP_API_VALUE);
 //				performCameraControl(Command.PAN_TILT_LEFT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1028,8 +1029,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.valueOf(currentCommandValue))
 						.concat(DeviceConstant.PAN_STOP_API_VALUE);
 //				performCameraControl(Command.PAN_TILT_RIGHT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1054,8 +1055,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentPanCommandValue))
 						.concat(String.valueOf(currentTiltCommandValue));
 //				performCameraControl(Command.PAN_TILT_UP_LEFT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1075,8 +1076,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.valueOf(currentCommandValue))
 						.concat(String.valueOf(currentCommandValue));
 //				performCameraControl(Command.PAN_TILT_UP_RIGHT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1101,8 +1102,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.valueOf(currentPanCommandValue))
 						.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentTiltCommandValue));
 //				performCameraControl(Command.PAN_TILT_DOWN_RIGHT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1122,8 +1123,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentCommandValue))
 						.concat(String.format(DeviceConstant.TWO_NUMBER_FORMAT, currentCommandValue));
 //				performCameraControl(Command.PAN_TILT_DOWN_LEFT_DEFAULT, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
-				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.PAN_TILT_STOP, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 
 				// camera need 2s to apply new value
 				try {
@@ -1135,7 +1136,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case HOME:
-				performCameraControl(Command.HASH.concat(Command.HOME_PRESET), controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				performCameraControl(Command.HASH.concat(Command.HOME_PRESET), value, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				break;
 			case PT_SPEED:
 				cachedPanTiltControlSpeed = Float.parseFloat(value);
@@ -1215,9 +1216,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						DeviceConstant.MIN_ZOOM_UI_VALUE);
 
 				String command = Command.HASH.concat(Command.ZOOM.concat(currentValueInHex.toUpperCase()));
-				String responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				String responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
+				// camera need 3s to apply new value
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
@@ -1238,9 +1240,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				currentValueInHex = convertFromUIValueToAPIValue(currentUIValue, DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE,
 						DeviceConstant.MIN_ZOOM_UI_VALUE);
 				command = Command.HASH.concat(Command.ZOOM.concat(currentValueInHex.toUpperCase()));
-				responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
+				// camera need 3s to apply new value
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
@@ -1261,9 +1264,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				currentValueInHex = convertFromUIValueToAPIValue(currentUIValue, DeviceConstant.MAX_ZOOM_API_VALUE, DeviceConstant.MIN_ZOOM_API_VALUE, DeviceConstant.MAX_ZOOM_UI_VALUE,
 						DeviceConstant.MIN_ZOOM_UI_VALUE);
 				command = Command.HASH.concat(Command.ZOOM.concat(currentValueInHex.toUpperCase()));
-				responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setZoomPosition(responseValueInHex.substring(Command.ZOOM.length()));
 
+				// camera need 3s to apply new value
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
@@ -1298,7 +1302,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		NightDayFilter currentNightDayFilterMode = cachedLiveCameraInfo.getNighDayFilter();
 
 		List<String> awbModes = DropdownList.getListOfEnumNames(AWBMode.class);
-		List<String> shutterModes = DropdownList.getListOfEnumNames(Shutter.class);
+		List<String> shutterModes = DropdownList.getListOfEnumNames(Shutter.class).stream().collect(Collectors.toList());
 		List<String> ndFilterModes = DropdownList.getListOfEnumNames(NightDayFilter.class);
 
 		addAdvanceControlProperties(advancedControllableProperties,
@@ -1357,8 +1361,8 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				break;
 		}
 
-		String irisControlLabelStart = String.valueOf(minIrisUIValue);
-		String irisControlLabelEnd = String.valueOf(DeviceConstant.MAX_IRIS_UI_VALUE);
+		String irisControlLabelEnd = 'F' + String.valueOf(minIrisUIValue);
+		String irisControlLabelStart = 'F' + String.valueOf(DeviceConstant.MAX_IRIS_UI_VALUE);
 		Float currentIrisPosition = convertFromApiValueToUIValue(cachedLiveCameraInfo.getIrisPosition(),
 				DeviceConstant.MAX_IRIS_API_VALUE, minIrisAPIValue, DeviceConstant.IRIS_UI_API_CONVERT_FACTOR, minIrisUIValue);
 		addAdvanceControlProperties(advancedControllableProperties, createSlider(stats, groupName.concat(ImageAdjustControlMetric.IRIS.getName()), irisControlLabelStart, irisControlLabelEnd,
@@ -1387,7 +1391,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.GAIN.getName();
 
 		addAdvanceControlProperties(advancedControllableProperties,
-				createSlider(stats, propertyName, minGainValue.toString(), maxGainValue.toString(), minGainValue.floatValue(), minGainValue.floatValue(), currentGainControlValue.floatValue()));
+				createSlider(stats, propertyName, minGainValue.toString(), maxGainValue.toString(), minGainValue.floatValue(), maxGainValue.floatValue(), currentGainControlValue.floatValue()));
 		stats.put(propertyName.concat(ImageAdjustControlMetric.CURRENT_VALUE.getName()), currentGainControlValue.toString());
 	}
 
@@ -1400,6 +1404,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @param value value of controllable property
 	 */
 	private void imageAdjustControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws FailedLoginException {
+		String groupName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH;
 		ImageAdjustControlMetric imageAdjustControlMetric = ImageAdjustControlMetric.getByName(controllableProperty);
 		isEmergencyDelivery = true;
 		switch (imageAdjustControlMetric) {
@@ -1408,54 +1413,69 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						DeviceConstant.MAX_IRIS_UI_VALUE,
 						DeviceConstant.MIN_IRIS_UI_VALUE_WITH_2160P_FORMAT);
 
-				String command = Command.HASH.concat(Command.IRIS.concat(currentValueInHex.toUpperCase()));
-				String responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
+				String command = Command.HASH.concat(Command.IRIS).concat(currentValueInHex.toUpperCase());
+				String responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setIrisPosition(responseValueInHex.substring(Command.IRIS_POSITION_RESPONSE.length()));
+
+				// camera need 3s to apply new value
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				retrieveSimultaneous();
 				populateIrisControl(stats, advancedControllableProperties);
 				break;
 			case GAIN:
 				Gain gainControlValue;
 				try {
-					gainControlValue = Gain.getByUIName(String.valueOf(Math.ceil(Float.parseFloat(value))));
+					gainControlValue = Gain.getByUIName(String.valueOf((int) Float.parseFloat(value)));
 
 				} catch (Exception e) {
 					gainControlValue = cachedLiveCameraInfo.getGain();
 				}
-				command = Command.HASH.concat(Command.GAIN).concat(gainControlValue.getApiName());
-				responseValueInHex = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
-				cachedLiveCameraInfo.setGain(Gain.getByAPIName(responseValueInHex));
+				command = gainControlValue.getApiNameSecond();
+				responseValueInHex = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
+				cachedLiveCameraInfo.setGain(Gain.getByAPINameSecond(responseValueInHex));
 				populateGainControl(stats, advancedControllableProperties);
 				break;
 			case AWB:
 				AWBMode awbMode = AWBMode.getByUIName(value);
-				command = Command.HASH.concat(awbMode.getApiName());
-				String response = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
+				command = awbMode.getApiName();
+				String response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
 				cachedLiveCameraInfo.setAwbMode(AWBMode.getByAPIName(response));
 				populateImageAdjustControls(stats, advancedControllableProperties);
 				break;
 			case ND_FILTER:
 				NightDayFilter nightDayFilter = NightDayFilter.getByUIName(value);
-				command = Command.HASH.concat(nightDayFilter.getApiName());
-				response = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
+				command = nightDayFilter.getApiName();
+				response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
 				cachedLiveCameraInfo.setNighDayFilter(NightDayFilter.getByAPIName(response));
 				populateImageAdjustControls(stats, advancedControllableProperties);
 				break;
 			case SHUTTER:
 				Shutter shutter = Shutter.getByUIName(value);
 				command = shutter.getApiName();
-				response = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
+				response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
 				cachedLiveCameraInfo.setShutter(Shutter.getByAPIValue(response));
 				populateImageAdjustControls(stats, advancedControllableProperties);
 				break;
 			case IRIS_AUTO_TRIGGER:
 				IrisMode irisMode = IrisMode.getByCode(value);
-				command = Command.HASH.concat(irisMode.getApiName());
-				response = performCameraControl(command, controllableProperty, DeviceURL.CAMERA_CONTROL, true);
-				cachedLiveCameraInfo.setIrisMode(IrisMode.getByUiName(response));
+				command = Command.HASH.concat(irisMode.getApiName().toUpperCase());
+				response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
+				cachedLiveCameraInfo.setIrisMode(IrisMode.getByAPIValue(response));
 				populateImageAdjustControls(stats, advancedControllableProperties);
 				break;
 			case AWB_RESET:
+				performCameraControl(Command.AWB_RESET, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
+				addAdvanceControlProperties(advancedControllableProperties,
+						createButton(stats, groupName.concat(ImageAdjustControlMetric.AWB_RESET.getName()), DeviceConstant.SUCCESSFUL, DeviceConstant.SUCCESSFUL));
+				break;
 			case ABB_RESET:
+				performCameraControl(Command.ABB_RESET, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
+				addAdvanceControlProperties(advancedControllableProperties,
+						createButton(stats, groupName.concat(ImageAdjustControlMetric.ABB_RESET.getName()), DeviceConstant.SUCCESSFUL, DeviceConstant.SUCCESSFUL));
 				break;
 			default:
 				throw new IllegalStateException(String.format("zoom control %s is not supported.", controllableProperty));
@@ -1719,26 +1739,32 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @throws FailedLoginException when log in failed
 	 * @throws IllegalStateException when exception occur
 	 */
-	private String performCameraControl(String command, String controllableProperty, String controlType, boolean retryOnUnAuthorized) throws FailedLoginException {
+	private String performCameraControl(String command, String controllableProperty, String controlValue, String controlType, boolean retryOnUnAuthorized) throws FailedLoginException {
 		try {
 			String request = buildDeviceFullPath(controlType
 					.concat(command)
 					.concat(DeviceURL.CAMERA_CONTROL_RES));
 			String response = doGet(request);
-			if (response.toUpperCase().contains(Command.ERROR_RESPONSE)) {
-				throw new IllegalStateException(String.format("Error while controlling %s", controllableProperty));
+			if (response.toUpperCase().contains(Command.ERROR_RESPONSE_1)) {
+				throw new IllegalStateException(String.format("Unsupported control value: %s", controlValue));
+			}
+			if (response.toUpperCase().contains(Command.ERROR_RESPONSE_2)) {
+				throw new IllegalStateException("The camera is in busy status");
+			}
+			if (response.toUpperCase().contains(Command.ERROR_RESPONSE_3)) {
+				throw new IllegalStateException(String.format("command's value is outside the acceptable range: %s", controlValue));
 			}
 			return response;
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
-				performCameraControl(command, controllableProperty, controlType, false);
+				performCameraControl(command, controllableProperty, controlValue, controlType, false);
 			} else {
 				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
 			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
-			throw new IllegalStateException(String.format("Error while controlling %s: %s", controllableProperty, e.getMessage()), e);
+			throw new IllegalStateException(String.format("Error while controlling %s with value %s : %s", controllableProperty, controlValue, e.getMessage()), e);
 		}
 	}
 

@@ -16,8 +16,9 @@ import java.util.Map;
 public enum AWBMode {
 
 	ATW("ATW", "OAW:0"),
-	AWB_A("AWB A", "OAW:2"),
-	AWB_B("AWB B", "OAW:3"),
+	AWB_A("AWB A", "OAW:1"),
+	AWB_B("AWB B", "OAW:2"),
+	ATW_2("ATW", "OAW:3"),
 	TEMPERATURE_3200K("3200K", "OAW:4"),
 	TEMPERATURE_5600K("5600K", "OAW:5"),
 	AUTO("VAR", "OAW:9");

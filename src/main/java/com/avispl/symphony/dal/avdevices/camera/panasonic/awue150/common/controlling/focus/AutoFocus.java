@@ -20,22 +20,22 @@ public enum AutoFocus {
 	ERROR("None", "None", "None", "-1");
 
 	private final String uiName;
-	private final String apiName1;
-	private final String apiName2;
+	private final String apiNameFirst;
+	private final String apiNameSecond;
 	private final String code;
 
 	/**
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of autofocus status
-	 * @param apiName1 api name 1 of autofocus status
-	 * @param apiName2 api name 2 of autofocus status
+	 * @param apiNameFirst api name 1 of autofocus status
+	 * @param apiNameSecond api name 2 of autofocus status
 	 * @param code code of autofocus status
 	 */
-	AutoFocus(String uiName, String apiName1, String apiName2, String code) {
+	AutoFocus(String uiName, String apiNameFirst, String apiNameSecond, String code) {
 		this.uiName = uiName;
-		this.apiName1 = apiName1;
-		this.apiName2 = apiName2;
+		this.apiNameFirst = apiNameFirst;
+		this.apiNameSecond = apiNameSecond;
 		this.code = code;
 	}
 
@@ -49,21 +49,21 @@ public enum AutoFocus {
 	}
 
 	/**
-	 * Retrieves {@code {@link #apiName1 }}
+	 * Retrieves {@code {@link #apiNameFirst }}
 	 *
-	 * @return value of {@link #apiName1}
+	 * @return value of {@link #apiNameFirst}
 	 */
-	public String getApiName1() {
-		return apiName1;
+	public String getApiNameFirst() {
+		return apiNameFirst;
 	}
 
 	/**
-	 * Retrieves {@link #apiName2}
+	 * Retrieves {@link #apiNameSecond}
 	 *
-	 * @return value of {@link #apiName2}
+	 * @return value of {@link #apiNameSecond}
 	 */
-	public String getApiName2() {
-		return apiName2;
+	public String getApiNameSecond() {
+		return apiNameSecond;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(AutoFocus.values()).filter(status -> apiValues.containsKey(status.getApiName1())).findFirst().orElse(AutoFocus.ERROR);
+		return Arrays.stream(AutoFocus.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(AutoFocus.ERROR);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByApiName2(String apiName2) {
-		return Arrays.stream(AutoFocus.values()).filter(status -> status.getApiName2().equals(apiName2)).findFirst().orElse(AutoFocus.ERROR);
+		return Arrays.stream(AutoFocus.values()).filter(status -> status.getApiNameSecond().equals(apiName2)).findFirst().orElse(AutoFocus.ERROR);
 	}
 }
 
