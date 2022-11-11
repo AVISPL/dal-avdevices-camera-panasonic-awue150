@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of operation lock
@@ -59,8 +58,7 @@ public enum OperationLock {
 	 * @return operationLock is the operation lockFan1Status that want to get
 	 */
 	public static OperationLock getByAPIValue(Map<String, String> apiValues) {
-		Optional<OperationLock> operationLock = Arrays.stream(OperationLock.values()).filter(operation -> apiValues.containsKey(operation.getApiName())).findFirst();
-		return operationLock.orElse(OperationLock.ERROR);
+		return Arrays.stream(OperationLock.values()).filter(operation -> apiValues.containsKey(operation.getApiName())).findFirst().orElse(OperationLock.ERROR);
 	}
 }
 

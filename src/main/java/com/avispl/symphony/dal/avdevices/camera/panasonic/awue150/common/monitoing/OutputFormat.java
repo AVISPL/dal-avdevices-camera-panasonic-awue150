@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monito
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of video output format
@@ -77,8 +76,7 @@ public enum OutputFormat {
 	 * @return outputFormat is the output format that want to get
 	 */
 	public static OutputFormat getByAPIValue(Map<String, String> apiValues) {
-		Optional<OutputFormat> outputFormat = Arrays.stream(OutputFormat.values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst();
-		return outputFormat.orElse(OutputFormat.ERROR);
+		return Arrays.stream(OutputFormat.values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst().orElse(OutputFormat.ERROR);
 	}
 }
 

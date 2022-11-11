@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of power on position status
@@ -28,7 +27,7 @@ public enum PowerOnPosition {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of power on position
-	 * @param apiName  api name power on position
+	 * @param apiName api name power on position
 	 */
 	PowerOnPosition(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -60,8 +59,7 @@ public enum PowerOnPosition {
 	 * @return powerOnPosition is the power on position status that want to get
 	 */
 	public static PowerOnPosition getByAPIValue(Map<String, String> apiValues) {
-		Optional<PowerOnPosition> powerOnPosition = Arrays.stream(PowerOnPosition.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return powerOnPosition.orElse(PowerOnPosition.NONE);
+		return Arrays.stream(PowerOnPosition.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(PowerOnPosition.NONE);
 	}
 }
 

@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of night day filter modes
@@ -19,8 +18,7 @@ public enum NightDayFilter {
 	THROUGH("Through", "OFT:0"),
 	ND_1_4("1/4", "OFT:1"),
 	ND_1_16("1/16", "OFT:2"),
-	ND_1_64("1/64", "OFT:3"),
-	ERROR("None", "None");
+	ND_1_64("1/64", "OFT:3");
 
 	private final String uiName;
 	private final String apiName;
@@ -61,8 +59,29 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the night day filter status that want to get
 	 */
 	public static NightDayFilter getByAPIValue(Map<String, String> apiValues) {
-		Optional<NightDayFilter> nightDayFilter = Arrays.stream(NightDayFilter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return nightDayFilter.orElse(NightDayFilter.ERROR);
+		return Arrays.stream(NightDayFilter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(THROUGH);
+
+	}
+
+	/**
+	 * This method is used to get ND filter mode from ui value
+	 *
+	 * @param uiName is ui name of ND filter mode
+	 * @return NightDayFilter is the ND filter status that want to get
+	 */
+	public static NightDayFilter getByUIName(String uiName) {
+		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(THROUGH);
+	}
+
+	/**
+	 * This method is used to get ND filter mode from ui value
+	 *
+	 * @param apiName is api name of ND filter mode
+	 * @return NightDayFilter is the ND filter status that want to get
+	 */
+	public static NightDayFilter getByAPIName(String apiName) {
+		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(THROUGH);
+
 	}
 }
 

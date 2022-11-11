@@ -5,7 +5,6 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.contro
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Set of focus ADJ with PTZ status
@@ -27,7 +26,7 @@ public enum FocusADJWithPTZ {
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of focus ADJ with PTZ status
-	 * @param apiName  api name focus ADJ with PTZ status
+	 * @param apiName api name focus ADJ with PTZ status
 	 */
 	FocusADJWithPTZ(String uiName, String apiName) {
 		this.uiName = uiName;
@@ -59,8 +58,7 @@ public enum FocusADJWithPTZ {
 	 * @return focusADJWithPTZ is the focus ADJ with PTZ status that want to get
 	 */
 	public static FocusADJWithPTZ getByAPIValue(Map<String, String> apiValues) {
-		Optional<FocusADJWithPTZ> focusADJWithPTZ = Arrays.stream(FocusADJWithPTZ.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst();
-		return focusADJWithPTZ.orElse(FocusADJWithPTZ.ERROR);
+		return Arrays.stream(FocusADJWithPTZ.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(FocusADJWithPTZ.ERROR);
 	}
 }
 
