@@ -55,13 +55,16 @@ public class Command {
 	// Image adjust
 	public static final String IRIS = "AXI";
 	public static final String IRIS_POSITION_RESPONSE = "axi";
-	public static final String GAIN = "OGU:";
+	public static final String AWB_RESET = "OWS";
+	public static final String ABB_RESET = "OAS";
 
 	// Other commands
 	public static final String SIMULTANEOUS = "PTD";
 	public static final String OPERATION_LOCK_RESPONSE = "OSJ:40:";
 	public static final String OPERATION_LOCK_FULL_RESPONSE = "OSJ:40:0";
-	public static final String ERROR_RESPONSE = "ER";
+	public static final String ERROR_RESPONSE_1 = "ER1";
+	public static final String ERROR_RESPONSE_2 = "ER2";
+	public static final String ERROR_RESPONSE_3 = "ER3";
 	public static final String HASH = "%23";
 	public static final String COLOR_TEMPERATURE = "OSJ:4A:0x";
 	public static final String AWB_R_GAIN = "OSJ:4B:0x";

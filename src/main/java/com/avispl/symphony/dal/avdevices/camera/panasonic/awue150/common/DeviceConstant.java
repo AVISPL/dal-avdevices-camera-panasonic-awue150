@@ -33,8 +33,8 @@ public class DeviceConstant {
 	public static final String NONE = "None";
 	public static final String ON = "On";
 	public static final String OFF = "Off";
-	public static final String ON_CODE= "1";
-	public static final String OF_CODE = "0";
+
+	public static final String SUCCESSFUL = "Successful";
 	public static final String APPLY = "Apply";
 	public static final String CANCEL = "Cancel";
 	public static final String APPLYING = "Applying";
@@ -75,8 +75,8 @@ public class DeviceConstant {
 	public static final float AWB_GAIN_API_UI_VALUE_CONVERT_FACTOR = 800;
 
 	public static final String MAX_IRIS_API_VALUE = "FFF";
-	public static final String MIN_IRIS_API_VALUE_WITH_2160P_FORMAT = "6DB";
-	public static final String MIN_IRIS_API_VALUE_WITH_1080P_FORMAT = "6DB";
+	public static final String MIN_IRIS_API_VALUE_WITH_2160P_FORMAT = "555";
+	public static final String MIN_IRIS_API_VALUE_WITH_1080P_FORMAT = "555";
 	public static final int MIN_PAN_LEFT_API_VALUE = 01;
 	public static final int MAX_PAN_LEFT_API_VALUE = 49;
 	public static final String PAN_STOP_API_VALUE = "50";
@@ -96,9 +96,9 @@ public class DeviceConstant {
 	public static final float MIN_TILT_POSITION_UI = -30f;
 	public static final float MAX_FOCUS_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_UI_VALUE = 0f;
-	public static final float MAX_IRIS_UI_VALUE = 25.5f;
+	public static final float MAX_IRIS_UI_VALUE = 25.4f;
 	public static final float MIN_IRIS_UI_VALUE_WITH_1080P_FORMAT = 2.8f;
-	public static final float MIN_IRIS_UI_VALUE_WITH_2160P_FORMAT = 2.9f;
+	public static final float MIN_IRIS_UI_VALUE_WITH_2160P_FORMAT = 2.8f;
 
 	public static final float MAX_FOCUS_SPEED_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_SPEED_UI_VALUE = 1f;
@@ -123,6 +123,6 @@ public class DeviceConstant {
 	public static final float ZOOM_UI_API_CONVERT_FACTOR = 999;
 	public static final float PAN_UI_API_CONVERT_FACTOR = 350;
 	public static final float TILT_UI_API_CONVERT_FACTOR = 240;
-	public static final float IRIS_UI_API_CONVERT_FACTOR = 25.5f;
+	public static final float IRIS_UI_API_CONVERT_FACTOR = 22.6f;
 }
 

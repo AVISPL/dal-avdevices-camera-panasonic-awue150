@@ -16,9 +16,9 @@ import java.util.Map;
 public enum NightDayFilter {
 
 	THROUGH("Through", "OFT:0"),
-	ND_1_4("1 per 4", "OFT:1"),
-	ND_1_16("1 per 16", "OFT:2"),
-	ND_1_64("1 per 64", "OFT:3");
+	ND_1_4("1/4", "OFT:1"),
+	ND_1_16("1/16", "OFT:2"),
+	ND_1_64("1/64", "OFT:3");
 
 	private final String uiName;
 	private final String apiName;

@@ -90,8 +90,8 @@ public enum IrisMode {
 	 * @param uiName is the ui name of iris mode
 	 * @return iris is the iris mode status that want to get
 	 */
-	public static IrisMode getByUiName(String uiName) {
-		return Arrays.stream(IrisMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(IrisMode.ERROR);
+	public static IrisMode getByAPIValue(String uiName) {
+		return Arrays.stream(IrisMode.values()).filter(status -> status.getApiName().equals(uiName)).findFirst().orElse(IrisMode.ERROR);
 	}
 }
 
