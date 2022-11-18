@@ -15,26 +15,27 @@ import java.util.Map;
  */
 public enum AWBMode {
 
-	ATW("ATW", "OAW:0"),
-	AWB_A("AWB A", "OAW:1"),
-	AWB_B("AWB B", "OAW:2"),
-	ATW_2("ATW", "OAW:3"),
-	TEMPERATURE_3200K("3200K", "OAW:4"),
-	TEMPERATURE_5600K("5600K", "OAW:5"),
-	AUTO("VAR", "OAW:9");
+	ATW("ATW", "OAW:0", "OAW:0"),
+	AWB_A("AWB A", "OAW:2", "OAW:1"),
+	AWB_B("AWB B", "OAW:3", "OAW:2"),
+	TEMPERATURE_3200K("3200K", "OAW:4", "OAW:4"),
+	TEMPERATURE_5600K("5600K", "OAW:5", "OAW:5"),
+	AUTO("VAR", "OAW:9", "OAW:9");
 
 	private final String uiName;
-	private final String apiName;
+	private final String apiNameFirst;
+	private final String apiNameSecond;
 
 	/**
 	 * Parameterized constructor
-	 *
-	 * @param uiName ui name of AWB mode status
-	 * @param apiName api name AWB mode status
+	 *  @param uiName ui name of AWB mode status
+	 * @param apiNameFirst api name AWB mode status
+	 * @param apiNameSecond
 	 */
-	AWBMode(String uiName, String apiName) {
+	AWBMode(String uiName, String apiNameFirst, String apiNameSecond) {
 		this.uiName = uiName;
-		this.apiName = apiName;
+		this.apiNameFirst = apiNameFirst;
+		this.apiNameSecond = apiNameSecond;
 	}
 
 	/**
@@ -47,12 +48,21 @@ public enum AWBMode {
 	}
 
 	/**
-	 * Retrieves {@code {@link #apiName}}
+	 * Retrieves {@code {@link #apiNameFirst }}
 	 *
-	 * @return value of {@link #apiName}
+	 * @return value of {@link #apiNameFirst}
 	 */
-	public String getApiName() {
-		return apiName;
+	public String getApiNameFirst() {
+		return apiNameFirst;
+	}
+
+	/**
+	 * Retrieves {@link #apiNameSecond}
+	 *
+	 * @return value of {@link #apiNameSecond}
+	 */
+	public String getApiNameSecond() {
+		return apiNameSecond;
 	}
 
 	/**
@@ -61,8 +71,8 @@ public enum AWBMode {
 	 * @param apiValues is the set of live camera info value
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
-	public static AWBMode getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(AWBMode.AUTO);
+	public static AWBMode getByAPINameFirst(Map<String, String> apiValues) {
+		return Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(AWBMode.AUTO);
 	}
 
 	/**
@@ -81,8 +91,8 @@ public enum AWBMode {
 	 * @param apiName is api name of AWBMode
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
-	public static AWBMode getByAPIName(String apiName) {
-		return Arrays.stream(AWBMode.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(AWBMode.AUTO);
+	public static AWBMode getByAPINameSecond(String apiName) {
+		return Arrays.stream(AWBMode.values()).filter(status -> status.getApiNameSecond().equals(apiName)).findFirst().orElse(AWBMode.AUTO);
 	}
 }
 

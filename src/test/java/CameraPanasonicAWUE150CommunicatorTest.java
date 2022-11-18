@@ -4,6 +4,9 @@
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -13,8 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 
+import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
+import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty.DropDown;
 import com.avispl.symphony.api.dal.dto.control.ControllableProperty;
 import com.avispl.symphony.api.dal.dto.monitor.ExtendedStatistics;
 import com.avispl.symphony.api.dal.error.ResourceNotReachableException;
@@ -23,7 +27,10 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DeviceC
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DeviceInfoMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.DevicesMetricGroup;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.FocusControlMetric;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.ImageAdjustControlMetric;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.NightDayFilter;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Shutter;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt.PanTiltControlMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.preset.PresetControlMetric;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.zoom.ZoomControlMetric;
@@ -47,6 +54,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		cameraPanasonicAWUE150Communicator.setLogin("admin");
 		cameraPanasonicAWUE150Communicator.setPassword("admin");
 		cameraPanasonicAWUE150Communicator.setTrustAllCertificates(true);
+		cameraPanasonicAWUE150Communicator.setConfigManagement("true");
 		cameraPanasonicAWUE150Communicator.init();
 		cameraPanasonicAWUE150Communicator.connect();
 	}
@@ -186,20 +194,42 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL_SPEED.getName();
-		String propertyValue = "20.0";
-		controllableProperty.setProperty(propertyName);
+		String focusControlName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL.getName();
+		String focusSpeedControlName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL_SPEED.getName();
+		String focusCurrentValueName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL.getName() + FocusControlMetric.CURRENT_VALUE.getName();
+		String focusNearName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL.getName() + FocusControlMetric.NEAR.getName();
+		String propertyValue = String.valueOf(DeviceConstant.MAX_FOCUS_UI_VALUE);
+
+		// change focus value to max
+		controllableProperty.setProperty(focusControlName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
 
-		propertyName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL_NEAR.getName();
-		String propertyCurrentValueName = DevicesMetricGroup.FOCUS_CONTROL.getName() + DeviceConstant.HASH + FocusControlMetric.FOCUS_CONTROL.getName() + FocusControlMetric.CURRENT_VALUE.getName();
-		propertyValue = "1";
-		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+		for (int i = (int) DeviceConstant.MIN_FOCUS_SPEED_UI_VALUE; i <= DeviceConstant.MAX_FOCUS_SPEED_UI_VALUE; i++) {
+			// control speed
+			propertyValue = String.valueOf(i);
+			controllableProperty.setProperty(focusSpeedControlName);
+			controllableProperty.setValue(propertyValue);
 
-		Assertions.assertEquals(DeviceConstant.MIN_FOCUS_UI_VALUE, Float.parseFloat(stats.get(propertyCurrentValueName)));
+			cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+
+			// control focus near
+			propertyValue = "1";
+			controllableProperty.setProperty(focusNearName);
+			controllableProperty.setValue(propertyValue);
+
+			assertDoesNotThrow(() ->
+					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
+			);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			System.out.println(stats.get(focusControlName) + " " + stats.get(focusCurrentValueName) + "\n");
+			Assertions.assertEquals(Float.parseFloat(stats.get(focusControlName)), Float.parseFloat(stats.get(focusCurrentValueName)));
+		}
 	}
 
 	/**
@@ -229,6 +259,32 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	}
 
 	/**
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty preset control: delete preset
+	 *
+	 * Expected: control successfully
+	 */
+	@Test
+	void testDeletePreset() throws Exception {
+		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+		Map<String, String> stats = extendedStatistics.getStatistics();
+		ControllableProperty controllableProperty = new ControllableProperty();
+
+		String propertyName = DevicesMetricGroup.PRESET_CONTROL.getName() + DeviceConstant.HASH + PresetControlMetric.PRESET.getName();
+		String propertyValue = "100 Preset100";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		propertyName = DevicesMetricGroup.PRESET_CONTROL.getName() + DeviceConstant.HASH + PresetControlMetric.DELETE_PRESET.getName();
+		propertyValue = "1";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		Assertions.assertNull(stats.get(propertyName));
+	}
+
+	/**
 	 * Test CameraPanasonicAWUE150Communicator.controlProperty preset control: apply preset
 	 *
 	 * Expected: control successfully
@@ -240,20 +296,22 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.PRESET_CONTROL.getName() + DeviceConstant.HASH + PresetControlMetric.PRESET.getName();
-		String propertyValue = "Preset001";
+		String propertyValue = DeviceConstant.DEFAULT_PRESET;
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
 
 		propertyName = DevicesMetricGroup.PRESET_CONTROL.getName() + DeviceConstant.HASH + PresetControlMetric.APPLY_PRESET.getName();
 		propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
 
 		Assertions.assertNull(stats.get(propertyName));
 		String lastPreset = DevicesMetricGroup.PRESET_CONTROL.getName() + DeviceConstant.HASH + PresetControlMetric.LAST_PRESET.getName();
-		Assertions.assertEquals("Preset001", stats.get(lastPreset));
+		Assertions.assertEquals("TMA", stats.get(lastPreset));
 	}
 
 	/**
@@ -448,7 +506,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
-		String propertyValue = "500";
+		String propertyValue = "100";
 		String propertyCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
@@ -492,7 +550,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL_SPEED.getName();
-		String propertyValue = "905";
+		String propertyValue = "0";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
@@ -522,23 +580,80 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	}
 
 	/**
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty focus control: push focus near
+	 *
+	 * Expected: control successfully
+	 */
+	@Test
+	void testZoomControlNearWithChangedSpeed() throws Exception {
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
+		ControllableProperty controllableProperty = new ControllableProperty();
+
+		String focusControlName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
+		String focusSpeedControlName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
+		String focusCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH +ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
+		String focusNearName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.NEAR.getName();
+		String propertyValue = String.valueOf(DeviceConstant.MAX_ZOOM_UI_VALUE);
+
+		// change focus value to max
+		controllableProperty.setProperty(focusControlName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+
+		for (int i = (int) DeviceConstant.MIN_ZOOM_SPEED_UI_VALUE; i <= DeviceConstant.MAX_ZOOM_SPEED_UI_VALUE; i++) {
+			// control speed
+			propertyValue = String.valueOf(i);
+			controllableProperty.setProperty(focusSpeedControlName);
+			controllableProperty.setValue(propertyValue);
+
+			cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+
+			// control focus near
+			propertyValue = "1";
+			controllableProperty.setProperty(focusNearName);
+			controllableProperty.setValue(propertyValue);
+
+			assertDoesNotThrow(() ->
+					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
+			);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(Float.parseFloat(stats.get(focusControlName)), Float.parseFloat(stats.get(focusCurrentValueName)));
+		}
+	}
+
+	/**
 	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
 	 *
 	 * Expected: control successfully
 	 */
 	@Test
-	void testShutterControlELC() throws Exception {
-		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
-		Map<String, String> stats = extendedStatistics.getStatistics();
+	void testShutterControl() throws Exception {
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.SHUTTER.getName();
-		String propertyValue = "ELC";
+		String propertyValue;
 		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
 
-		Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		for (Shutter shutter : Shutter.values()) {
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			propertyValue = shutter.getUiName();
+			controllableProperty.setValue(shutter.getUiName());
+			assertDoesNotThrow(() ->
+					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
+			);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		}
 	}
 
 	/**
@@ -548,117 +663,134 @@ class CameraPanasonicAWUE150CommunicatorTest {
 	 */
 	@Test
 	void testNDFilterControl() throws Exception {
-		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
-		Map<String, String> stats = extendedStatistics.getStatistics();
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.ND_FILTER.getName();
-		String propertyValue = "1 per 64";
+		String propertyValue;
 		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
 
-		Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		for (NightDayFilter nightDayFilter : NightDayFilter.values()) {
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			propertyValue = nightDayFilter.getUiName();
+			controllableProperty.setValue(nightDayFilter.getUiName());
+			assertDoesNotThrow(() ->
+					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
+			);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		}
 	}
 
-
 	/**
-	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty awb control
 	 *
 	 * Expected: control successfully
 	 */
 	@Test
 	void testAWBControl() throws Exception {
-		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
-		Map<String, String> stats = extendedStatistics.getStatistics();
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.AWB.getName();
-		String propertyValue = "AWB B";
+		String propertyValue;
 		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
 
-		Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		for (AWBMode awbMode : AWBMode.values()) {
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			propertyValue = awbMode.getUiName();
+			controllableProperty.setValue(propertyValue);
+			assertDoesNotThrow(() ->
+					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
+			);
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(propertyValue, stats.get(propertyName));
+		}
+
 	}
 
 	/**
-	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty gain control with super gain enable
 	 *
 	 * Expected: control successfully
 	 */
 	@Test
 	void testGainControl() throws Exception {
-		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
-		Map<String, String> stats = extendedStatistics.getStatistics();
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.GAIN.getName();
 		String propertyValue;
+		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+		extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+		List<AdvancedControllableProperty> advancedControllablePropertyList = extendedStatistics.getControllableProperties();
+		List<String> gainModes = new ArrayList<>();
 
-		for (int i = 0; i <= 42; i++) {
-			propertyValue = String.valueOf(i);
+		// get list of dropdown control value
+		for (AdvancedControllableProperty advancedControllableProperty : advancedControllablePropertyList) {
+			if (advancedControllableProperty.getName().equals(propertyName)) {
+				DropDown dropDown = (DropDown) advancedControllableProperty.getType();
+				gainModes = Arrays.asList(dropDown.getLabels());
+				break;
+			}
+		}
+
+		// test all control values
+		for (String gain : gainModes) {
+			propertyValue = gain;
 			controllableProperty.setProperty(propertyName);
 			controllableProperty.setValue(propertyValue);
 			assertDoesNotThrow(() ->
 					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
 			);
-			Assertions.assertEquals(Float.parseFloat(propertyValue), Float.parseFloat(stats.get(propertyName)));
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(propertyValue, stats.get(propertyName));
 		}
 	}
 
-	/**
-	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
-	 *
-	 * Expected: control successfully
-	 */
-	@Test
-	void testGainMaxControl() throws Exception {
-		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
-		ControllableProperty controllableProperty = new ControllableProperty();
-
-		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.GAIN.getName();
-		String propertyValue = "38";
-		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-
-		controllableProperty.setProperty(propertyName);
-		controllableProperty.setValue(propertyValue);
-		IllegalStateException exception =
-				Assertions.assertThrows(IllegalStateException.class, () -> {
-					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
-				});
-		Assertions.assertEquals(String.format("Error while controlling Gain with value %s : command's value is outside the acceptable range: %s", propertyValue, propertyValue), exception.getMessage());
-	}
 
 	/**
-	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty iris control
 	 *
 	 * Expected: control successfully
 	 */
 	@Test
 	void testIrisControl() throws Exception {
-		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
-		Map<String, String> stats = extendedStatistics.getStatistics();
+		ExtendedStatistics extendedStatistics;
+		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.IRIS.getName();
 		String currentValue = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.IRIS.getName() + ImageAdjustControlMetric.CURRENT_VALUE.getName();
 		String propertyValue;
 
-		for (int i = 28; i <= 255; i++) {
+		for (int i = 29; i <= 255; i++) {
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
 			propertyValue = String.valueOf(i / 10f);
 			controllableProperty.setProperty(propertyName);
 			controllableProperty.setValue(propertyValue);
 			assertDoesNotThrow(() ->
 					cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty)
 			);
-			Assertions.assertEquals(Float.parseFloat(propertyValue), Float.parseFloat(stats.get(currentValue)));
+
+			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
+			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+			stats = extendedStatistics.getStatistics();
+			Assertions.assertEquals(Float.parseFloat(stats.get(currentValue)), DeviceConstant.MAX_IRIS_UI_VALUE - Float.parseFloat(propertyValue) + DeviceConstant.MIN_IRIS_UI_VALUE);
 		}
 	}
 
 	/**
-	 * Test CameraPanasonicAWUE150Communicator.controlProperty shutter control
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty iris auto trigger control
 	 *
 	 * Expected: control successfully
 	 */

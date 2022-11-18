@@ -7,7 +7,9 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.control
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Gain;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.IrisMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.NightDayFilter;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.NightDayMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Shutter;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.SuperGain;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt.PowerOnPosition;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.OperationLock;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.OutputFormat;
@@ -46,11 +48,19 @@ public class LiveCameraInfo {
 	private String awbGGain;
 	private String awbBGain;
 	private String colorTemperature;
+	private SuperGain superGain;
 	private int panUIValue;
 	private int tiltUIValue;
 	private int zoomUIValue;
 	private int focusUIValue;
 	private float irisUIValue;
+	private List<String> presetNames;
+	private String panTiltUpLimitation;
+	private String panTiltDownLimitation;
+	private String panTiltLeftLimitation;
+	private String panTiltRightLimitation;
+	private Float irisLimitation;
+	private NightDayMode nightDayMode;
 
 	/**
 	 * Retrieves {@link #focusPosition}
@@ -572,5 +582,149 @@ public class LiveCameraInfo {
 	 */
 	public void setIrisUIValue(float irisUIValue) {
 		this.irisUIValue = irisUIValue;
+	}
+
+	/**
+	 * Retrieves {@link #superGain}
+	 *
+	 * @return value of {@link #superGain}
+	 */
+	public SuperGain getSuperGain() {
+		return superGain;
+	}
+
+	/**
+	 * Sets {@link #superGain} value
+	 *
+	 * @param superGain new value of {@link #superGain}
+	 */
+	public void setSuperGain(SuperGain superGain) {
+		this.superGain = superGain;
+	}
+
+	/**
+	 * Retrieves {@link #presetNames}
+	 *
+	 * @return value of {@link #presetNames}
+	 */
+	public List<String> getPresetNames() {
+		return presetNames;
+	}
+
+	/**
+	 * Sets {@link #presetNames} value
+	 *
+	 * @param presetNames new value of {@link #presetNames}
+	 */
+	public void setPresetNames(List<String> presetNames) {
+		this.presetNames = presetNames;
+	}
+
+	/**
+	 * Retrieves {@link #panTiltUpLimitation}
+	 *
+	 * @return value of {@link #panTiltUpLimitation}
+	 */
+	public String getPanTiltUpLimitation() {
+		return panTiltUpLimitation;
+	}
+
+	/**
+	 * Sets {@link #panTiltUpLimitation} value
+	 *
+	 * @param panTiltUpLimitation new value of {@link #panTiltUpLimitation}
+	 */
+	public void setPanTiltUpLimitation(String panTiltUpLimitation) {
+		this.panTiltUpLimitation = panTiltUpLimitation;
+	}
+
+	/**
+	 * Retrieves {@link #panTiltDownLimitation}
+	 *
+	 * @return value of {@link #panTiltDownLimitation}
+	 */
+	public String getPanTiltDownLimitation() {
+		return panTiltDownLimitation;
+	}
+
+	/**
+	 * Sets {@link #panTiltDownLimitation} value
+	 *
+	 * @param panTiltDownLimitation new value of {@link #panTiltDownLimitation}
+	 */
+	public void setPanTiltDownLimitation(String panTiltDownLimitation) {
+		this.panTiltDownLimitation = panTiltDownLimitation;
+	}
+
+	/**
+	 * Retrieves {@link #panTiltLeftLimitation}
+	 *
+	 * @return value of {@link #panTiltLeftLimitation}
+	 */
+	public String getPanTiltLeftLimitation() {
+		return panTiltLeftLimitation;
+	}
+
+	/**
+	 * Sets {@link #panTiltLeftLimitation} value
+	 *
+	 * @param panTiltLeftLimitation new value of {@link #panTiltLeftLimitation}
+	 */
+	public void setPanTiltLeftLimitation(String panTiltLeftLimitation) {
+		this.panTiltLeftLimitation = panTiltLeftLimitation;
+	}
+
+	/**
+	 * Retrieves {@link #panTiltRightLimitation}
+	 *
+	 * @return value of {@link #panTiltRightLimitation}
+	 */
+	public String getPanTiltRightLimitation() {
+		return panTiltRightLimitation;
+	}
+
+	/**
+	 * Sets {@link #panTiltRightLimitation} value
+	 *
+	 * @param panTiltRightLimitation new value of {@link #panTiltRightLimitation}
+	 */
+	public void setPanTiltRightLimitation(String panTiltRightLimitation) {
+		this.panTiltRightLimitation = panTiltRightLimitation;
+	}
+
+	/**
+	 * Retrieves {@link #irisLimitation}
+	 *
+	 * @return value of {@link #irisLimitation}
+	 */
+	public Float getIrisLimitation() {
+		return irisLimitation;
+	}
+
+	/**
+	 * Sets {@link #irisLimitation} value
+	 *
+	 * @param irisLimitation new value of {@link #irisLimitation}
+	 */
+	public void setIrisLimitation(Float irisLimitation) {
+		this.irisLimitation = irisLimitation;
+	}
+
+	/**
+	 * Retrieves {@link #nightDayMode}
+	 *
+	 * @return value of {@link #nightDayMode}
+	 */
+	public NightDayMode getNightDayMode() {
+		return nightDayMode;
+	}
+
+	/**
+	 * Sets {@link #nightDayMode} value
+	 *
+	 * @param nightDayMode new value of {@link #nightDayMode}
+	 */
+	public void setNightDayMode(NightDayMode nightDayMode) {
+		this.nightDayMode = nightDayMode;
 	}
 }
