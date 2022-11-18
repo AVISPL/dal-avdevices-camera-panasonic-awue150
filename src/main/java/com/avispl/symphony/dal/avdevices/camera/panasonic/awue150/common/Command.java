@@ -35,18 +35,16 @@ public class Command {
 	public static final char DELETE_PRESET_SUCCESSFUL_RESPONSE = '0';
 
 	// Pan/ Tilt commands
-	public static final String PAN_TILT_RIGHT_DEFAULT = "%23PTS7550";
-	public static final String PAN_TILT_LEFT_DEFAULT = "%23PTS2550";
-	public static final String PAN_TILT_UP_DEFAULT = "%23PTS5075";
-	public static final String PAN_TILT_DOWN_DEFAULT = "%23PTS5025";
-	public static final String PAN_TILT_UP_RIGHT_DEFAULT = "%23PTS7575";
-	public static final String PAN_TILT_DOWN_RIGHT_DEFAULT = "%23PTS7525";
-	public static final String PAN_TILT_UP_LEFT_DEFAULT = "%23PTS2575";
-	public static final String PAN_TILT_DOWN_LEFT_DEFAULT = "%23PTS2525";
+	public static final String PAN_TILT_UP_LIMITATION = "lC1";
+	public static final String PAN_TILT_DOWN_LIMITATION = "lC2";
+	public static final String PAN_TILT_LEFT_LIMITATION = "lC3";
+	public static final String PAN_TILT_RIGHT_LIMITATION = "lC4";
 	public static final String PAN_TILT_STOP = "%23PTS5050";
 	public static final String PAN_TILT = "%23PTS";
 	public static final String TITLE_RESPONSE = "TITLE:";
 	public static final String PAN_TILT_POSITION_RESPONSE = "aPC";
+	public static final String ENABLE= "0";
+	public static final String DISABLE = "1";
 
 	// Zoom commands
 	public static final String ZOOM = "AXZ";
@@ -70,4 +68,5 @@ public class Command {
 	public static final String AWB_R_GAIN = "OSJ:4B:0x";
 	public static final String AWB_G_GAIN = "OSJ:4D:0x";
 	public static final String AWB_B_GAIN = "OSJ:4C:0x";
+	public static final String QUERY_PRESET_NAME = "QSJ:35:";
 }

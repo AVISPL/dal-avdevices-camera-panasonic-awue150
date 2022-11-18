@@ -20,12 +20,8 @@ public class DeviceConstant {
 
 	public static final char HASH = '#';
 	public static final char NEXT_LINE = '\n';
-	public static final char SLASH = '/';
-	public static final String COMMA = ",";
 	public static final String COLON = ":";
 	public static final String EQUAL = "=";
-	public static final String RIGHT_PARENTHESES = ")";
-	public static final String LEFT_PARENTHESES = "(";
 	public static final String KELVIN = "K";
 	public static final String SPACE = " ";
 	public static final String EMPTY = "";
@@ -33,14 +29,9 @@ public class DeviceConstant {
 	public static final String NONE = "None";
 	public static final String ON = "On";
 	public static final String OFF = "Off";
-
 	public static final String SUCCESSFUL = "Successful";
 	public static final String APPLY = "Apply";
-	public static final String CANCEL = "Cancel";
 	public static final String APPLYING = "Applying";
-	public static final String CANCELLING = "Canceling";
-	public static final String CREATE = "Create";
-	public static final String CREATING = "Creating";
 	public static final String DELETE = "Delete";
 	public static final String DELETING = "Deleting";
 	public static final String HOME = "Home";
@@ -49,7 +40,7 @@ public class DeviceConstant {
 	public static final String PRESET = "Preset";
 	public static final String DEFAULT_PRESET = "Select a preset";
 	public static final String PUSHING = "Pushing";
-	public static final String RESETTING = "Resetting";
+	public static final String EXECUTING = "Executing";
 	public static final String PT_HOME = "Home";
 	public static final String UP = "Up";
 	public static final String DOWN = "Down";
@@ -73,10 +64,9 @@ public class DeviceConstant {
 	public static final String MAX_AWB_GAIN_API_VALUE = "990";
 	public static final float MIN_AWB_GAIN_UI_VALUE = -400;
 	public static final float AWB_GAIN_API_UI_VALUE_CONVERT_FACTOR = 800;
-
 	public static final String MAX_IRIS_API_VALUE = "FFF";
-	public static final String MIN_IRIS_API_VALUE_WITH_2160P_FORMAT = "555";
-	public static final String MIN_IRIS_API_VALUE_WITH_1080P_FORMAT = "555";
+	public static final String MIN_IRIS_API_VALUE = "555";
+	public static final String CONNECTION_TIME_OUT = "TIME OUT";
 	public static final int MIN_PAN_LEFT_API_VALUE = 01;
 	public static final int MAX_PAN_LEFT_API_VALUE = 49;
 	public static final String PAN_STOP_API_VALUE = "50";
@@ -96,10 +86,8 @@ public class DeviceConstant {
 	public static final float MIN_TILT_POSITION_UI = -30f;
 	public static final float MAX_FOCUS_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_UI_VALUE = 0f;
-	public static final float MAX_IRIS_UI_VALUE = 25.4f;
-	public static final float MIN_IRIS_UI_VALUE_WITH_1080P_FORMAT = 2.8f;
-	public static final float MIN_IRIS_UI_VALUE_WITH_2160P_FORMAT = 2.8f;
-
+	public static final float MAX_IRIS_UI_VALUE = 25.5f;
+	public static final float MIN_IRIS_UI_VALUE = 2.8f;
 	public static final float MAX_FOCUS_SPEED_UI_VALUE = 95f;
 	public static final float MIN_FOCUS_SPEED_UI_VALUE = 1f;
 	public static final float MAX_PAN_TILT_SPEED_UI_VALUE = 50f;
@@ -107,7 +95,7 @@ public class DeviceConstant {
 	public static final float MAX_ZOOM_UI_VALUE = 999f;
 	public static final float MIN_ZOOM_UI_VALUE = 0f;
 	public static final float MAX_ZOOM_SPEED_UI_VALUE = 999f;
-	public static final float MIN_ZOOM_SPEED_UI_VALUE = 1f;
+	public static final float MIN_ZOOM_SPEED_UI_VALUE = 10f;
 	public static final int PAN_START_INDEX_IN_SIMULTANEOUS_RESPONSE = 0;
 	public static final int PAN_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 4;
 	public static final int TILT_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 8;
@@ -116,13 +104,16 @@ public class DeviceConstant {
 	public static final int IRIS_END_INDEX_IN_SIMULTANEOUS_RESPONSE = 15;
 	public static final int PRESET_INDEX_MAX = 100;
 	public static final int PRESET_INDEX_MIN = 1;
+	public static final int FIST_FIVE_PRESET_INDEX = 5;
+	public static final int AFTER_FIST_FIVE_PRESET_INDEX = 6;
 	public static final int DEFAULT_PRESET_INDEX = 0;
 	public static final int DEFAULT_VALUE= 0;
 	public static final int MAX_FAILED_REQUEST = 4;
+	public static final int INDEX_TO_ORDINAL_CONVERT_FACTOR = 1;
 	public static final float FOCUS_UI_API_CONVERT_FACTOR = 95;
 	public static final float ZOOM_UI_API_CONVERT_FACTOR = 999;
 	public static final float PAN_UI_API_CONVERT_FACTOR = 350;
 	public static final float TILT_UI_API_CONVERT_FACTOR = 240;
-	public static final float IRIS_UI_API_CONVERT_FACTOR = 22.6f;
+	public static final int REBOOT_GRACE_PERIOD_MS = 0;
 }
 
