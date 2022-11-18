@@ -27,7 +27,7 @@ public enum ImageAdjustControlMetric {
 	AWB_COLOR_TEMPERATURE("AWBColorTemperature"),
 	AWB_R_GAIN("AWBRGain"),
 	AWB_B_GAIN("AWBBGain"),
-	AWB_G_GAIN("AWBGGain"),
+	AWB_G_GAIN("AWBGAxis"),
 	CURRENT_VALUE("CurrentValue"),
 	FOCUS_MODE("FocusMode");
 

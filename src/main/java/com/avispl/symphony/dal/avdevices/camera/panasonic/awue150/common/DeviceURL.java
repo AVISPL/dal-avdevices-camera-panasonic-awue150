@@ -21,6 +21,5 @@ public class DeviceURL {
 	public static final String MODEL_SERIAL = "/cgi-bin/model_serial";
 	public static final String CAMERA_PTZ_CONTROL = "/cgi-bin/aw_ptz?cmd=";
 	public static final String CAMERA_CONTROL = "/cgi-bin/aw_cam?cmd=";
-	public static final String CAMERA_CONTROL_HASH = "%23";
 	public static final String CAMERA_CONTROL_RES = "&res=1";
 }
