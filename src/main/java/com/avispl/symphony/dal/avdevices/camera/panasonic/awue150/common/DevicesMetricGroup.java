@@ -15,11 +15,13 @@ import java.util.Optional;
  */
 public enum DevicesMetricGroup {
 
+	POWER("Power"),
+	OPERATION_LOCK("OperationLock"),
 	SYSTEM_INFO("SystemInfo"),
 	CAMERA_LIVE_INFO("CameraLiveInfo"),
 	MODEL_NAME("ModelName"),
 	SIMULTANEOUS("Simultaneous"),
-	PAN_TILT_PAD_CONTROL("PanTiltPadControl"),
+	PAN_TILT_PAD_CONTROL("PanTiltControl"),
 	ZOOM_CONTROL("ZoomControl"),
 	FOCUS_CONTROL("FocusControl"),
 	PRESET_CONTROL("PresetControl"),
@@ -49,8 +51,8 @@ public enum DevicesMetricGroup {
 	/**
 	 * This method is used to get device metric group by name
 	 *
-	 * @param name is the name of focus control that want to get
-	 * @return DevicesMetricGroup is the focus control that want to get
+	 * @param name is the name of device metric group that want to get
+	 * @return DevicesMetricGroup is the device metric group that want to get
 	 */
 	public static DevicesMetricGroup getByName(String name) {
 		Optional<DevicesMetricGroup> devicesMetricGroup = Arrays.stream(DevicesMetricGroup.values()).filter(group -> group.getName().equals(name)).findFirst();

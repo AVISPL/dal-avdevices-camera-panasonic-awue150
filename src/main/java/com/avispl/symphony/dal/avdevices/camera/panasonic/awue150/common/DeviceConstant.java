@@ -29,9 +29,14 @@ public class DeviceConstant {
 	public static final String NONE = "None";
 	public static final String ON = "On";
 	public static final String OFF = "Off";
+	public static final String DAY = "Day";
+	public static final String NIGHT = "Night";
+
+	public static final String LOCK = "Lock";
+	public static final String UNLOCK = "Unlock";
 	public static final String SUCCESSFUL = "Successful";
-	public static final String APPLY = "Apply";
-	public static final String APPLYING = "Applying";
+	public static final String APPLY = "Recall";
+	public static final String APPLYING = "Recalling";
 	public static final String DELETE = "Delete";
 	public static final String DELETING = "Deleting";
 	public static final String HOME = "Home";

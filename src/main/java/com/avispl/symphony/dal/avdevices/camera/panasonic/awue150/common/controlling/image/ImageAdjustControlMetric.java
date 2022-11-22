@@ -16,7 +16,7 @@ import java.util.Optional;
 public enum ImageAdjustControlMetric {
 
 	// Static metric
-	IRIS("Iris"),
+	IRIS("IrisControl"),
 	IRIS_AUTO_TRIGGER("IrisAutoTrigger"),
 	GAIN("Gain"),
 	AWB("AWB"),
@@ -24,11 +24,13 @@ public enum ImageAdjustControlMetric {
 	ABB_RESET("ABBReset"),
 	SHUTTER("Shutter"),
 	ND_FILTER("NDFilter"),
-	AWB_COLOR_TEMPERATURE("AWBColorTemperature"),
+	AWB_COLOR_TEMPERATURE("AWBColorTemperature(K)"),
+	AWB_COLOR_TEMPERATURE_STATUS("AWBColorTemperatureStatus"),
 	AWB_R_GAIN("AWBRGain"),
 	AWB_B_GAIN("AWBBGain"),
 	AWB_G_GAIN("AWBGAxis"),
 	CURRENT_VALUE("CurrentValue"),
+	NIGHT_DAY_MODE("NightDayMode"),
 	FOCUS_MODE("FocusMode");
 
 	private final String name;

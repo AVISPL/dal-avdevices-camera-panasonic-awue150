@@ -3,6 +3,9 @@
  */
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * Set of device info metric keys
  *
@@ -25,7 +28,7 @@ public enum DeviceInfoMetric {
 	ERROR_INFORMATION("ErrorInformation"),
 	ERROR_STATUS_INFO("ErrorStatusInfo"),
 	UHD_CROP("UHDCrop"),
-	POWER_STATUS("PowerStatus");
+	POWER_STATUS("Power");
 
 	private final String name;
 
@@ -45,6 +48,22 @@ public enum DeviceInfoMetric {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+
+	/**
+	 * This method is used to get device info metric by name
+	 *
+	 * @param name is the name of device info metric that want to get
+	 * @return DeviceInfoMetric is the device info metric that want to get
+	 */
+	public static DeviceInfoMetric getByName(String name) {
+		Optional<DeviceInfoMetric> deviceInfoMetric = Arrays.stream(DeviceInfoMetric.values()).filter(metric -> metric.getName().equals(name)).findFirst();
+		if (deviceInfoMetric.isPresent()) {
+			return deviceInfoMetric.get();
+		} else {
+			throw new IllegalStateException(String.format("control group %s is not supported.", name));
+		}
 	}
 
 }

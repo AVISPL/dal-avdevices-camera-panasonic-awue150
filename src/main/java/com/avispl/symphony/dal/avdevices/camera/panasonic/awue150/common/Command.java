@@ -69,4 +69,5 @@ public class Command {
 	public static final String AWB_G_GAIN = "OSJ:4D:0x";
 	public static final String AWB_B_GAIN = "OSJ:4C:0x";
 	public static final String QUERY_PRESET_NAME = "QSJ:35:";
+	public static final String OPERATION_LOCK = "OSJ:3E:0123456789012345678901234567890123456789&ope=ABCDE&res=1";
 }

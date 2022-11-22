@@ -15,12 +15,12 @@ import java.util.Map;
  */
 public enum ErrorInformation {
 
-	NO_ERROR("NoError", "OSI:46:0x00000000"),
-	FAN_ERROR("FanError", "OSI:46:0x00000001"),
-	HIGH_TEMPERATURE("HighTemperature", "OSI:46:0x00000002"),
-	LENS_ERROR("LensError", "OSI:46:0x00000004"),
-	PAN_TILT_ERROR("PanTiltError", "OSI:46:0x00000008"),
-	SENSOR_ERROR("SensorError", "OSI:46:0x00000010"),
+	NO_ERROR("No Error", "OSI:46:0x00000000"),
+	FAN_ERROR("Fan Error", "OSI:46:0x00000001"),
+	HIGH_TEMPERATURE("High Temperature", "OSI:46:0x00000002"),
+	LENS_ERROR("Lens Error", "OSI:46:0x00000004"),
+	PAN_TILT_ERROR("Pan Tilt Error", "OSI:46:0x00000008"),
+	SENSOR_ERROR("Sensor Error", "OSI:46:0x00000010"),
 	ERROR("None", "None");
 
 	private final String uiName;
