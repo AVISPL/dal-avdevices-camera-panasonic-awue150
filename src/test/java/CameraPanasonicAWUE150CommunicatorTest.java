@@ -820,7 +820,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = "OperationLock";
+		String propertyName = "Power";
 		String propertyValue = "0";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
