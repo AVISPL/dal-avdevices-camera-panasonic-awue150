@@ -17,7 +17,7 @@ public enum IrisMode {
 
 	MANUAL("Manual", "d30", "0"),
 	AUTO("Auto", "d31", "1"),
-	ERROR("None", "None", "0");
+	ERROR("None", "None", "-1");
 
 	private final String uiName;
 	private final String apiName;

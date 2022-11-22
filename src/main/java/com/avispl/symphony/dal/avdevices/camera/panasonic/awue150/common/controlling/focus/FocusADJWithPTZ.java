@@ -15,9 +15,9 @@ import java.util.Map;
  */
 public enum FocusADJWithPTZ {
 
-	MANUAL("Off", "OAZ:0", "1"),
+	MANUAL("Off", "OAZ:0", "0"),
 	AUTO("On", "OAZ:1", "1"),
-	ERROR("None", "None", "1");
+	ERROR("None", "None", "-1");
 
 	private final String uiName;
 	private final String apiName;

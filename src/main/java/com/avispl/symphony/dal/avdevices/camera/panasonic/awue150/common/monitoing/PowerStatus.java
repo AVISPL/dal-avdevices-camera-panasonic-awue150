@@ -17,7 +17,7 @@ public enum PowerStatus {
 
 	ON("On", "p1", "O1", "1"),
 	OFF("Standby", "p0", "O0", "0"),
-	ERROR("None", "none", "None", "0");
+	ERROR("None", "none", "None", "-1");
 
 	private final String uiName;
 	private final String apiNameFirst;

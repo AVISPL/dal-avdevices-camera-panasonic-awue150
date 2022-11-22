@@ -17,7 +17,7 @@ public enum OperationLock {
 
 	UNLOCK("Unlock", "OSJ:40:0", "OSJ:3F", "0"),
 	LOCK("Lock", "OSJ:40:1", "OSJ:3E:0123456789012345678901234567890123456789&ope=ABCDE&res=1", "1"),
-	ERROR("None", "None", "none", "1");
+	ERROR("None", "None", "none", "-1");
 
 	private final String uiName;
 	private final String apiNameFirst;
