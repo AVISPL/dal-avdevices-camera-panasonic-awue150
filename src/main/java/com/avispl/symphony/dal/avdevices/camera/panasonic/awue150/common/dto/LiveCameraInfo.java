@@ -3,6 +3,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.dto;
 import java.util.List;
 
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.AutoFocus;
+import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.focus.FocusADJWithPTZ;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.AWBMode;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.Gain;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image.IrisMode;
@@ -26,11 +27,13 @@ public class LiveCameraInfo {
 
 	private String focusPosition;
 	private AutoFocus autoFocus;
-	private String focusADJWithPTZ;
+	private FocusADJWithPTZ focusADJWithPTZ;
 	private String lastPreset;
 	private OperationLock operationLock;
 	private PowerStatus powerStatus;
 	private String panTiltPosition;
+	private String tiltPosition;
+	private String panPosition;
 	private PowerOnPosition powerOnPosition;
 	private String preset01To40;
 	private String preset41To80;
@@ -61,6 +64,8 @@ public class LiveCameraInfo {
 	private String panTiltRightLimitation;
 	private Float irisLimitation;
 	private NightDayMode nightDayMode;
+	private String colorTemperatureStatus;
+	private String colorTemperatureValue;
 
 	/**
 	 * Retrieves {@link #focusPosition}
@@ -103,7 +108,7 @@ public class LiveCameraInfo {
 	 *
 	 * @return value of {@link #focusADJWithPTZ}
 	 */
-	public String getFocusADJWithPTZ() {
+	public FocusADJWithPTZ getFocusADJWithPTZ() {
 		return focusADJWithPTZ;
 	}
 
@@ -112,7 +117,7 @@ public class LiveCameraInfo {
 	 *
 	 * @param focusADJWithPTZ new value of {@link #focusADJWithPTZ}
 	 */
-	public void setFocusADJWithPTZ(String focusADJWithPTZ) {
+	public void setFocusADJWithPTZ(FocusADJWithPTZ focusADJWithPTZ) {
 		this.focusADJWithPTZ = focusADJWithPTZ;
 	}
 
@@ -726,5 +731,77 @@ public class LiveCameraInfo {
 	 */
 	public void setNightDayMode(NightDayMode nightDayMode) {
 		this.nightDayMode = nightDayMode;
+	}
+
+	/**
+	 * Retrieves {@link #tiltPosition}
+	 *
+	 * @return value of {@link #tiltPosition}
+	 */
+	public String getTiltPosition() {
+		return tiltPosition;
+	}
+
+	/**
+	 * Sets {@link #tiltPosition} value
+	 *
+	 * @param tiltPosition new value of {@link #tiltPosition}
+	 */
+	public void setTiltPosition(String tiltPosition) {
+		this.tiltPosition = tiltPosition;
+	}
+
+	/**
+	 * Retrieves {@link #panPosition}
+	 *
+	 * @return value of {@link #panPosition}
+	 */
+	public String getPanPosition() {
+		return panPosition;
+	}
+
+	/**
+	 * Sets {@link #panPosition} value
+	 *
+	 * @param panPosition new value of {@link #panPosition}
+	 */
+	public void setPanPosition(String panPosition) {
+		this.panPosition = panPosition;
+	}
+
+	/**
+	 * Retrieves {@link #colorTemperatureStatus}
+	 *
+	 * @return value of {@link #colorTemperatureStatus}
+	 */
+	public String getColorTemperatureStatus() {
+		return colorTemperatureStatus;
+	}
+
+	/**
+	 * Sets {@link #colorTemperatureStatus} value
+	 *
+	 * @param colorTemperatureStatus new value of {@link #colorTemperatureStatus}
+	 */
+	public void setColorTemperatureStatus(String colorTemperatureStatus) {
+		this.colorTemperatureStatus = colorTemperatureStatus;
+	}
+
+	/**
+	 * Retrieves {@link #colorTemperatureValue}
+	 *
+	 * @return value of {@link #colorTemperatureValue}
+	 */
+	public String getColorTemperatureValue() {
+		return colorTemperatureValue;
+	}
+
+	/**
+	 * Sets {@link #colorTemperatureValue} value
+	 *
+	 * @param colorTemperatureValue new value of {@link #colorTemperatureValue}
+	 */
+	public void setColorTemperatureValue(String colorTemperatureValue) {
+		this.colorTemperatureValue = colorTemperatureValue;
 	}
 }

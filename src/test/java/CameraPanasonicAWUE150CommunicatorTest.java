@@ -528,7 +528,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL_FAR.getName();
+		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_IN.getName();
 		String propertyCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
@@ -569,7 +569,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats = extendedStatistics.getStatistics();
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL_NEAR.getName();
+		String propertyName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_OUT.getName();
 		String propertyCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
 		String propertyValue = "1";
 		controllableProperty.setProperty(propertyName);
@@ -590,14 +590,14 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		Map<String, String> stats;
 		ControllableProperty controllableProperty = new ControllableProperty();
 
-		String focusControlName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
-		String focusSpeedControlName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
-		String focusCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH +ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
-		String focusNearName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.NEAR.getName();
+		String zoomControlName = DevicesMetricGroup.ZOOM_CONTROL.getName() + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
+		String zoomSpeedControlName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_CONTROL.getName();
+		String zoomCurrentValueName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH +ZoomControlMetric.ZOOM_CONTROL.getName() + ZoomControlMetric.CURRENT_VALUE.getName();
+		String zoomTeleName = DevicesMetricGroup.ZOOM_CONTROL.getName()  + DeviceConstant.HASH + ZoomControlMetric.ZOOM_IN;
 		String propertyValue = String.valueOf(DeviceConstant.MAX_ZOOM_UI_VALUE);
 
 		// change focus value to max
-		controllableProperty.setProperty(focusControlName);
+		controllableProperty.setProperty(zoomControlName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
 		cameraPanasonicAWUE150Communicator.getMultipleStatistics();
@@ -606,7 +606,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 		for (int i = (int) DeviceConstant.MIN_ZOOM_SPEED_UI_VALUE; i <= DeviceConstant.MAX_ZOOM_SPEED_UI_VALUE; i++) {
 			// control speed
 			propertyValue = String.valueOf(i);
-			controllableProperty.setProperty(focusSpeedControlName);
+			controllableProperty.setProperty(zoomSpeedControlName);
 			controllableProperty.setValue(propertyValue);
 
 			cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
@@ -614,7 +614,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 
 			// control focus near
 			propertyValue = "1";
-			controllableProperty.setProperty(focusNearName);
+			controllableProperty.setProperty(zoomTeleName);
 			controllableProperty.setValue(propertyValue);
 
 			assertDoesNotThrow(() ->
@@ -623,7 +623,7 @@ class CameraPanasonicAWUE150CommunicatorTest {
 			cameraPanasonicAWUE150Communicator.getMultipleStatistics();
 			extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
 			stats = extendedStatistics.getStatistics();
-			Assertions.assertEquals(Float.parseFloat(stats.get(focusControlName)), Float.parseFloat(stats.get(focusCurrentValueName)));
+			Assertions.assertEquals(Float.parseFloat(stats.get(zoomControlName)), Float.parseFloat(stats.get(zoomCurrentValueName)));
 		}
 	}
 
@@ -802,6 +802,26 @@ class CameraPanasonicAWUE150CommunicatorTest {
 
 		String propertyName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH + ImageAdjustControlMetric.IRIS_AUTO_TRIGGER.getName();
 		String propertyValue = "1";
+		controllableProperty.setProperty(propertyName);
+		controllableProperty.setValue(propertyValue);
+		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);
+
+		Assertions.assertEquals(propertyValue, stats.get(propertyName));
+	}
+
+	/**
+	 * Test CameraPanasonicAWUE150Communicator.controlProperty iris auto trigger control
+	 *
+	 * Expected: control successfully
+	 */
+	@Test
+	void testIrisAutoTrigger1Control() throws Exception {
+		ExtendedStatistics extendedStatistics = (ExtendedStatistics) cameraPanasonicAWUE150Communicator.getMultipleStatistics().get(0);
+		Map<String, String> stats = extendedStatistics.getStatistics();
+		ControllableProperty controllableProperty = new ControllableProperty();
+
+		String propertyName = "OperationLock";
+		String propertyValue = "0";
 		controllableProperty.setProperty(propertyName);
 		controllableProperty.setValue(propertyValue);
 		cameraPanasonicAWUE150Communicator.controlProperty(controllableProperty);

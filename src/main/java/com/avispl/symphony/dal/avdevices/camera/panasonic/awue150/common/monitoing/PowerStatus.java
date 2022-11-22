@@ -15,22 +15,28 @@ import java.util.Map;
  */
 public enum PowerStatus {
 
-	ON("On", "p1"),
-	OFF("Standby", "p0"),
-	ERROR("None", "None");
+	ON("On", "p1", "O1", "1"),
+	OFF("Standby", "p0", "O0", "0"),
+	ERROR("None", "none", "None", "0");
 
 	private final String uiName;
-	private final String apiName;
+	private final String apiNameFirst;
+	private final String apiNameSecond;
+	private final String code;
 
 	/**
 	 * Parameterized constructor
 	 *
 	 * @param uiName ui name of power status
-	 * @param apiName api name of power status
+	 * @param apiNameFirst api name first of power status
+	 * @param apiNameSecond api name second of power status
+	 * @param code code of power status (1/0)
 	 */
-	PowerStatus(String uiName, String apiName) {
+	PowerStatus(String uiName, String apiNameFirst, String apiNameSecond, String code) {
 		this.uiName = uiName;
-		this.apiName = apiName;
+		this.apiNameFirst = apiNameFirst;
+		this.apiNameSecond = apiNameSecond;
+		this.code = code;
 	}
 
 	/**
@@ -43,22 +49,60 @@ public enum PowerStatus {
 	}
 
 	/**
-	 * Retrieves {@code {@link #apiName}}
+	 * Retrieves {@link #apiNameFirst}
 	 *
-	 * @return value of {@link #apiName}
+	 * @return value of {@link #apiNameFirst}
 	 */
-	public String getApiName() {
-		return apiName;
+	public String getApiNameFirst() {
+		return apiNameFirst;
 	}
 
 	/**
-	 * This method is used to get fan status by API values
+	 * Retrieves {@code {@link #apiNameSecond }}
+	 *
+	 * @return value of {@link #apiNameSecond}
+	 */
+	public String getApiNameSecond() {
+		return apiNameSecond;
+	}
+
+	/**
+	 * Retrieves {@link #code}
+	 *
+	 * @return value of {@link #code}
+	 */
+	public String getCode() {
+		return code;
+	}
+
+	/**
+	 * This method is used to get power status by API name first
 	 *
 	 * @param apiValues is the set of live camera info value
-	 * @return powerStatus is the power status that want to get
+	 * @return PowerStatus is the power status that want to get
 	 */
-	public static PowerStatus getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(PowerStatus.ERROR);
+	public static PowerStatus getByAPINameFirst(Map<String, String> apiValues) {
+		return Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(PowerStatus.ERROR);
+	}
+
+	/**
+	 * This method is used to get power status from ui value
+	 *
+	 * @param code is code of power status
+	 * @return PowerStatus is the power status that want to get
+	 */
+	public static PowerStatus getByCode(String code) {
+		return Arrays.stream(PowerStatus.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(PowerStatus.ERROR);
+	}
+
+	/**
+	 * This method is used to get power status from ui value
+	 *
+	 * @param apiNameFirst is api name first of power status
+	 * @return PowerStatus is the power status that want to get
+	 */
+	public static PowerStatus getByAPINameFirst(String apiNameFirst) {
+		return Arrays.stream(PowerStatus.values()).filter(status -> status.getApiNameFirst().equals(apiNameFirst)).findFirst().orElse(PowerStatus.ERROR);
 	}
 }
 

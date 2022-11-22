@@ -19,7 +19,7 @@ public enum PresetControlMetric {
 	HOME("Home"),
 	LAST_PRESET("LastPreset"),
 	PRESET("Preset"),
-	APPLY_PRESET("ApplyPreset"),
+	APPLY_PRESET("RecallPreset"),
 	DELETE_PRESET("DeletePreset"),
 	SET_PRESET("SetPreset");
 
