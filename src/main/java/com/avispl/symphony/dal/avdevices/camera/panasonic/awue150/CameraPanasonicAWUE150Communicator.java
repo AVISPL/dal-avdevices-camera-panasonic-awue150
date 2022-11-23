@@ -414,7 +414,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		} catch (HttpHostConnectException e) {
 			throw new ResourceNotReachableException(String.format("Error while connecting to %s: %s", host, e.getMessage()), e);
 		} catch (Exception e) {
-			throw new ResourceNotReachableException("Login failed, Please check the username and password", e);
+			throw new ResourceNotReachableException("Login failed" + e.getMessage(), e);
 		}
 	}
 
@@ -577,9 +577,16 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 				// populate power on/of controllable property
 				addAdvanceControlProperties(advancedControllableProperties, stats,
-						createSwitch(DeviceInfoMetric.POWER_STATUS.getName(), cachedLiveCameraInfo.getPowerStatus().getCode(), DeviceConstant.OFF, DeviceConstant.ON));
+						createSwitch(DeviceInfoMetric.POWER_STATUS.getName(), cachedLiveCameraInfo.getPowerStatus().getCode(), DeviceConstant.STANDBY, DeviceConstant.ON));
 				addAdvanceControlProperties(advancedControllableProperties, stats,
 						createSwitch(DeviceInfoMetric.OPERATION_LOCK.getName(), cachedLiveCameraInfo.getOperationLock().getCode(), DeviceConstant.UNLOCK, DeviceConstant.LOCK));
+
+				// hidden Power control when operation lock is lock
+				if(OperationLock.LOCK.equals(cachedLiveCameraInfo.getOperationLock())){
+					Set<String> unusedKeys = new HashSet<>();
+					unusedKeys.add(DeviceInfoMetric.POWER_STATUS.getName());
+					removeUnusedStatsAndControls(stats, advancedControllableProperties, unusedKeys);
+				}
 
 			}
 		} else {
@@ -1083,22 +1090,22 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String groupName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH;
 		String upLabel = DeviceConstant.UP;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltUpLimitation())) {
-			upLabel = "Disabled";
+			upLabel = DeviceConstant.DISABLED;
 		}
 
 		String downLabel = DeviceConstant.DOWN;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltDownLimitation())) {
-			downLabel = "Disabled";
+			downLabel = DeviceConstant.DISABLED;
 		}
 
 		String leftLabel = DeviceConstant.LEFT;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltLeftLimitation())) {
-			leftLabel = "Disabled";
+			leftLabel = DeviceConstant.DISABLED;
 		}
 
 		String rightLabel = DeviceConstant.RIGHT;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltRightLimitation())) {
-			rightLabel = "Disabled";
+			rightLabel = DeviceConstant.DISABLED;
 		}
 
 		addAdvanceControlProperties(advancedControllableProperties, stats,

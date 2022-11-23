@@ -29,6 +29,8 @@ public class DeviceConstant {
 	public static final String NONE = "None";
 	public static final String ON = "On";
 	public static final String OFF = "Off";
+	public static final String STANDBY = "Standby";
+	public static final String DISABLED = "Disabled";
 	public static final String DAY = "Day";
 	public static final String NIGHT = "Night";
 
