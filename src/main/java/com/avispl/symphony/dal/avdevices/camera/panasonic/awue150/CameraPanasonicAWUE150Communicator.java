@@ -1,5 +1,7 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150;
 
+import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
+
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -21,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.security.auth.login.FailedLoginException;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -74,8 +77,6 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoi
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.UHDCrop;
 import com.avispl.symphony.dal.communicator.RestCommunicator;
 import com.avispl.symphony.dal.util.StringUtils;
-
-import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
 
 /**
  * PanasonicCameraAWUE150Communicator
@@ -249,7 +250,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					default:
 						throw new IllegalStateException(String.format("Control %s is not supported", property));
 				}
-			}else {
+			} else {
 				String[] splitProperty = property.split(String.valueOf(DeviceConstant.HASH));
 				if (splitProperty.length == 2) {
 					DevicesMetricGroup group = DevicesMetricGroup.getByName(splitProperty[0]);
@@ -397,18 +398,21 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					((CloseableHttpResponse) response).close();
 				}
 			}
-			String headerResponse = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE).toString();
 
-			if (response.getStatusLine().getStatusCode() == HttpStatus.UNAUTHORIZED.value() && StringUtils.isNotNullOrEmpty(headerResponse)) {
-				AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
-				List<Map<String, String>> challenges = new ArrayList<>();
-				Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
-				challenges.add(challenge);
+			Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
+			if (header != null) {
+				String headerResponse = header.toString();
+				if (response.getStatusLine().getStatusCode() == HttpStatus.UNAUTHORIZED.value() && StringUtils.isNotNullOrEmpty(headerResponse)) {
+					AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
+					List<Map<String, String>> challenges = new ArrayList<>();
+					Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
+					challenges.add(challenge);
 
-				if (headerResponse.contains(DeviceConstant.BASIC)) {
-					authorizationHeader = authorizationChallengeHandler.handleBasic();
-				} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
-					authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
+					if (headerResponse.contains(DeviceConstant.BASIC)) {
+						authorizationHeader = authorizationChallengeHandler.handleBasic();
+					} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
+						authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
+					}
 				}
 			}
 		} catch (HttpHostConnectException e) {
@@ -582,7 +586,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 						createSwitch(DeviceInfoMetric.OPERATION_LOCK.getName(), cachedLiveCameraInfo.getOperationLock().getCode(), DeviceConstant.UNLOCK, DeviceConstant.LOCK));
 
 				// hidden Power control when operation lock is lock
-				if(OperationLock.LOCK.equals(cachedLiveCameraInfo.getOperationLock())){
+				if (OperationLock.LOCK.equals(cachedLiveCameraInfo.getOperationLock())) {
 					Set<String> unusedKeys = new HashSet<>();
 					unusedKeys.add(DeviceInfoMetric.POWER_STATUS.getName());
 					removeUnusedStatsAndControls(stats, advancedControllableProperties, unusedKeys);
@@ -1607,10 +1611,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createSwitch(groupName.concat(ImageAdjustControlMetric.IRIS_AUTO_TRIGGER.getName()), cachedLiveCameraInfo.getIrisMode().getCode(), DeviceConstant.OFF, DeviceConstant.ON));
 		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(ImageAdjustControlMetric.AWB_RESET.getName()), ImageAdjustControlMetric.AWB_RESET.getName(), DeviceConstant.EXECUTING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(ImageAdjustControlMetric.ABB_RESET.getName()), ImageAdjustControlMetric.ABB_RESET.getName(), DeviceConstant.EXECUTING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createSwitch(groupName.concat(ImageAdjustControlMetric.NIGHT_DAY_MODE.getName()), cachedLiveCameraInfo.getNightDayMode().getCode(), DeviceConstant.DAY, DeviceConstant.NIGHT));
 		populateIrisControl(stats, advancedControllableProperties);
 		populateGainControl(stats, advancedControllableProperties);
@@ -1706,7 +1706,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * @throws FailedLoginException when login fails
 	 */
 	private void imageAdjustControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String controllableProperty, String value) throws FailedLoginException {
-		String groupName = DevicesMetricGroup.IMAGE_ADJUST.getName() + DeviceConstant.HASH;
 		ImageAdjustControlMetric imageAdjustControlMetric = ImageAdjustControlMetric.getByName(controllableProperty);
 		isEmergencyDelivery = true;
 		switch (imageAdjustControlMetric) {
@@ -1756,6 +1755,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				command = awbMode.getApiNameSecond();
 				String response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
 				cachedLiveCameraInfo.setAwbMode(AWBMode.getByAPINameSecond(response));
+				retrieveLiveCameraInfo(stats, advancedControllableProperties);
 				populateImageAdjustControls(stats, advancedControllableProperties);
 				break;
 			case ND_FILTER:
@@ -1779,16 +1779,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				response = performCameraControl(command, controllableProperty, value, DeviceURL.CAMERA_PTZ_CONTROL, true);
 				cachedLiveCameraInfo.setIrisMode(IrisMode.getByAPIValue(response));
 				populateImageAdjustControls(stats, advancedControllableProperties);
-				break;
-			case AWB_RESET:
-				performCameraControl(Command.AWB_RESET, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
-				addAdvanceControlProperties(advancedControllableProperties, stats,
-						createButton(groupName.concat(ImageAdjustControlMetric.AWB_RESET.getName()), DeviceConstant.SUCCESSFUL, DeviceConstant.SUCCESSFUL));
-				break;
-			case ABB_RESET:
-				performCameraControl(Command.ABB_RESET, controllableProperty, value, DeviceURL.CAMERA_CONTROL, true);
-				addAdvanceControlProperties(advancedControllableProperties, stats,
-						createButton(groupName.concat(ImageAdjustControlMetric.ABB_RESET.getName()), DeviceConstant.SUCCESSFUL, DeviceConstant.SUCCESSFUL));
 				break;
 			case NIGHT_DAY_MODE:
 				NightDayMode nightDayMode = NightDayMode.getByCode(value);
