@@ -4,7 +4,6 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.image;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Set of focus control metric keys
@@ -60,13 +59,8 @@ public enum ImageAdjustControlMetric {
 	 * @return ImageAdjust is the image adjust control that want to get
 	 */
 	public static ImageAdjustControlMetric getByName(String name) {
-		Optional<ImageAdjustControlMetric> imageAdjustControlMetric = Arrays.stream(ImageAdjustControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst();
-		if (imageAdjustControlMetric.isPresent()) {
-			return imageAdjustControlMetric.get();
-		} else {
-			throw new IllegalStateException(String.format("Image adjust control %s is not supported.", name));
-		}
+		return Arrays.stream(ImageAdjustControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+				.orElseThrow(()-> new IllegalStateException(String.format("Image adjust control %s is not supported.", name)));
 	}
-
 }
 

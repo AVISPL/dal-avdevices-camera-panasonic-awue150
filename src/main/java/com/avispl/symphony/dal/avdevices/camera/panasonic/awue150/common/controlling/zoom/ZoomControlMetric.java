@@ -4,7 +4,6 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.zoom;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Set of zoom control metric keys
@@ -51,13 +50,8 @@ public enum ZoomControlMetric {
 	 * @return FocusControlMetric is the focus control that want to get
 	 */
 	public static ZoomControlMetric getByName(String name) {
-		Optional<ZoomControlMetric> focusControlMetric = Arrays.stream(ZoomControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst();
-		if (focusControlMetric.isPresent()) {
-			return focusControlMetric.get();
-		}else {
-			throw new IllegalStateException(String.format("Focus control %s is not supported.", name));
-		}
+		return Arrays.stream(ZoomControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+				.orElseThrow(() -> new IllegalStateException(String.format("Focus control %s is not supported.", name)));
 	}
-
 }
 
