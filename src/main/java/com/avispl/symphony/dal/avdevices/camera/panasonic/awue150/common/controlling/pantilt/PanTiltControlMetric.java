@@ -4,7 +4,6 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.controlling.pantilt;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Set of focus control metric keys
@@ -60,13 +59,8 @@ public enum PanTiltControlMetric {
 	 * @return PresetControlMetric is the preset control metric that want to get
 	 */
 	public static PanTiltControlMetric getByName(String name) {
-		Optional<PanTiltControlMetric> presetControlMetric = Arrays.stream(PanTiltControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst();
-		if (presetControlMetric.isPresent()) {
-			return presetControlMetric.get();
-		}else {
-			throw new IllegalStateException(String.format("Focus control %s is not supported.", name));
-		}
+		return Arrays.stream(PanTiltControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+				.orElseThrow(() -> new IllegalStateException(String.format("Focus control %s is not supported.", name)));
 	}
-
 }
 

@@ -4,7 +4,6 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Set of device info metric keys
@@ -58,13 +57,8 @@ public enum DeviceInfoMetric {
 	 * @return DeviceInfoMetric is the device info metric that want to get
 	 */
 	public static DeviceInfoMetric getByName(String name) {
-		Optional<DeviceInfoMetric> deviceInfoMetric = Arrays.stream(DeviceInfoMetric.values()).filter(metric -> metric.getName().equals(name)).findFirst();
-		if (deviceInfoMetric.isPresent()) {
-			return deviceInfoMetric.get();
-		} else {
-			throw new IllegalStateException(String.format("control group %s is not supported.", name));
-		}
+		return Arrays.stream(DeviceInfoMetric.values()).filter(metric -> metric.getName().equals(name)).findFirst()
+				.orElseThrow(() -> new IllegalStateException(String.format("control group %s is not supported.", name)));
 	}
-
 }
 
