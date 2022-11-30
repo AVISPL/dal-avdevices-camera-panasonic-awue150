@@ -1092,36 +1092,46 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 */
 	private void populatePanTiltControls(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		String groupName = DevicesMetricGroup.PAN_TILT_PAD_CONTROL.getName() + DeviceConstant.HASH;
-		String upLabel = DeviceConstant.UP;
+
+		String upLabel = groupName.concat(PanTiltControlMetric.UP.getName());
+		String downLabel = groupName.concat(PanTiltControlMetric.DOWN.getName());
+		String leftLabel = groupName.concat(PanTiltControlMetric.LEFT.getName());
+		String rightLabel = groupName.concat(PanTiltControlMetric.RIGHT.getName());
+
+		// remove the Up, down, left, right controllable properties when they are disabled
+		Set<String> unusedKeys = new HashSet<>();
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltUpLimitation())) {
-			upLabel = DeviceConstant.DISABLED;
+			unusedKeys.add(upLabel);
+		} else {
+			addAdvanceControlProperties(advancedControllableProperties, stats,
+					createButton(upLabel, DeviceConstant.UP, DeviceConstant.PUSHING));
 		}
-
-		String downLabel = DeviceConstant.DOWN;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltDownLimitation())) {
-			downLabel = DeviceConstant.DISABLED;
+			unusedKeys.add(downLabel);
+		} else {
+			addAdvanceControlProperties(advancedControllableProperties, stats,
+					createButton(downLabel, DeviceConstant.DOWN, DeviceConstant.PUSHING));
 		}
-
-		String leftLabel = DeviceConstant.LEFT;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltLeftLimitation())) {
-			leftLabel = DeviceConstant.DISABLED;
+			unusedKeys.add(leftLabel);
+		} else {
+			addAdvanceControlProperties(advancedControllableProperties, stats,
+					createButton(leftLabel, DeviceConstant.LEFT, DeviceConstant.PUSHING));
 		}
-
-		String rightLabel = DeviceConstant.RIGHT;
 		if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltRightLimitation())) {
-			rightLabel = DeviceConstant.DISABLED;
+			unusedKeys.add(rightLabel);
+		} else {
+			addAdvanceControlProperties(advancedControllableProperties, stats,
+					createButton(rightLabel, DeviceConstant.RIGHT, DeviceConstant.PUSHING));
 		}
+		removeUnusedStatsAndControls(stats, advancedControllableProperties, unusedKeys);
+		stats.put(upLabel, DeviceConstant.DISABLED);
+		stats.put(downLabel, DeviceConstant.DISABLED);
+		stats.put(leftLabel, DeviceConstant.DISABLED);
+		stats.put(rightLabel, DeviceConstant.DISABLED);
 
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createButton(groupName.concat(PanTiltControlMetric.HOME.getName()), DeviceConstant.PT_HOME, DeviceConstant.PUSHING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(PanTiltControlMetric.UP.getName()), upLabel, DeviceConstant.PUSHING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(PanTiltControlMetric.DOWN.getName()), downLabel, DeviceConstant.PUSHING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(PanTiltControlMetric.LEFT.getName()), leftLabel, DeviceConstant.PUSHING));
-		addAdvanceControlProperties(advancedControllableProperties, stats,
-				createButton(groupName.concat(PanTiltControlMetric.RIGHT.getName()), rightLabel, DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createButton(groupName.concat(PanTiltControlMetric.UP_LEFT.getName()), DeviceConstant.UP_LEFT, DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties, stats,
@@ -1158,7 +1168,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		PanTiltControlMetric panTiltControlMetric = PanTiltControlMetric.getByName(controllableProperty);
 		switch (panTiltControlMetric) {
 			case UP:
-				lockPanTiltControl(PanTiltControlMetric.UP);
+				lockPanTiltControl(PanTiltControlMetric.UP, stats, advancedControllableProperties);
 
 				int currentCommandValue = DeviceConstant.MIN_TILT_UP_API_VALUE + (int) cachedPanTiltControlSpeed;
 				if (currentCommandValue > DeviceConstant.MAX_TILT_UP_API_VALUE) {
@@ -1187,7 +1197,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case DOWN:
-				lockPanTiltControl(PanTiltControlMetric.DOWN);
+				lockPanTiltControl(PanTiltControlMetric.DOWN, stats, advancedControllableProperties);
 
 				currentCommandValue = DeviceConstant.MAX_TILT_DOWN_API_VALUE - (int) cachedPanTiltControlSpeed;
 				if (currentCommandValue < DeviceConstant.MIN_TILT_DOWN_API_VALUE) {
@@ -1217,7 +1227,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case LEFT:
-				lockPanTiltControl(PanTiltControlMetric.LEFT);
+				lockPanTiltControl(PanTiltControlMetric.LEFT, stats, advancedControllableProperties);
 
 				currentCommandValue = DeviceConstant.MAX_PAN_LEFT_API_VALUE - (int) cachedPanTiltControlSpeed;
 				if (currentCommandValue < DeviceConstant.MIN_PAN_LEFT_API_VALUE) {
@@ -1246,7 +1256,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				populatePanTiltControls(stats, advancedControllableProperties);
 				break;
 			case RIGHT:
-				lockPanTiltControl(PanTiltControlMetric.RIGHT);
+				lockPanTiltControl(PanTiltControlMetric.RIGHT, stats, advancedControllableProperties);
 
 				currentCommandValue = DeviceConstant.MIN_PAN_RIGHT_API_VALUE + (int) cachedPanTiltControlSpeed;
 				if (currentCommandValue > DeviceConstant.MAX_PAN_RIGHT_API_VALUE) {
@@ -1429,9 +1439,14 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	/**
 	 * This method is used to lock pan tilt control
 	 *
+	 * @param stats store all statistics
+	 * @param advancedControllableProperties store all controllable properties
 	 * @param panTiltControlMetric panTiltControlMetric
+	 *
+	 * @throws FailedLoginException when log in fail
 	 */
-	private void lockPanTiltControl(PanTiltControlMetric panTiltControlMetric) {
+	private void lockPanTiltControl(PanTiltControlMetric panTiltControlMetric, Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) throws FailedLoginException {
+		retrieveLiveCameraInfo(stats, advancedControllableProperties);
 		switch (panTiltControlMetric) {
 			case UP:
 				if (Command.DISABLE.equals(cachedLiveCameraInfo.getPanTiltUpLimitation())) {
