@@ -1,7 +1,5 @@
 package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150;
 
-import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -1921,6 +1919,21 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		toggle.setLabelOff(labelOff);
 		toggle.setLabelOn(labelOn);
 		return new AdvancedControllableProperty(name, new Date(), toggle, statusCode);
+	}
+
+	/**
+	 * Create a dropdown controllable property
+	 *
+	 * @param name name of the controllable property
+	 * @param values list of values to use
+	 * @param initialValue initial value of the controllable property
+	 * @return AdvancedControllableProperty dropdown instance
+	 */
+	public static AdvancedControllableProperty createDropdown(String name, List<String> values, String initialValue) {
+		AdvancedControllableProperty.DropDown dropDown = new AdvancedControllableProperty.DropDown();
+		dropDown.setOptions(values.toArray(new String[0]));
+		dropDown.setLabels(values.toArray(new String[0]));
+		return new AdvancedControllableProperty(name, new Date(), dropDown, initialValue);
 	}
 
 	/**
