@@ -6,7 +6,7 @@
 
   <groupId>com.avispl.symphony.dal.avdevices.camera.panasonic.awue150</groupId>
   <artifactId>symphony-dal-avdevices-camera-panasonic-awue150</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0-onprem</version>
 
   <build>
     <plugins>
