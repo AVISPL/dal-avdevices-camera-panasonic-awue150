@@ -62,7 +62,7 @@ public enum ErrorInformation {
 	 * @return fanStatus is the fan status that want to get
 	 */
 	public static ErrorInformation getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(ErrorInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ErrorInformation.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 }
 

@@ -71,7 +71,7 @@ public enum IrisMode {
 	 * @return IrisMode is the IrisMode status that want to get
 	 */
 	public static IrisMode getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(IrisMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(IrisMode.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public enum IrisMode {
 	 * @return iris is the iris mode status that want to get
 	 */
 	public static IrisMode getByCode(String code) {
-		return Arrays.stream(IrisMode.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(IrisMode.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -91,7 +91,7 @@ public enum IrisMode {
 	 * @return iris is the iris mode status that want to get
 	 */
 	public static IrisMode getByAPIValue(String uiName) {
-		return Arrays.stream(IrisMode.values()).filter(status -> status.getApiName().equals(uiName)).findFirst().orElse(IrisMode.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getApiName().equals(uiName)).findFirst().orElse(ERROR);
 	}
 }
 

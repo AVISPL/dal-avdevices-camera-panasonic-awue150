@@ -57,7 +57,7 @@ public enum DeviceInfoMetric {
 	 * @return DeviceInfoMetric is the device info metric that want to get
 	 */
 	public static DeviceInfoMetric getByName(String name) {
-		return Arrays.stream(DeviceInfoMetric.values()).filter(metric -> metric.getName().equals(name)).findFirst()
+		return Arrays.stream(values()).filter(metric -> metric.getName().equals(name)).findFirst()
 				.orElseThrow(() -> new IllegalStateException(String.format("control group %s is not supported.", name)));
 	}
 }

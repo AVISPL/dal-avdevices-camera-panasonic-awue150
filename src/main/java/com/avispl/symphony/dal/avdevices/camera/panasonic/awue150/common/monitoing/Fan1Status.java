@@ -60,7 +60,7 @@ public enum Fan1Status {
 	 * @return fanStatus is the fan status that want to get
 	 */
 	public static Fan1Status getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(Fan1Status.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(Fan1Status.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 }
 

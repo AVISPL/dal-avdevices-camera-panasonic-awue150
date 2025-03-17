@@ -59,7 +59,7 @@ public enum PanTiltControlMetric {
 	 * @return PresetControlMetric is the preset control metric that want to get
 	 */
 	public static PanTiltControlMetric getByName(String name) {
-		return Arrays.stream(PanTiltControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+		return Arrays.stream(values()).filter(control -> control.getName().equals(name)).findFirst()
 				.orElseThrow(() -> new IllegalStateException(String.format("Focus control %s is not supported.", name)));
 	}
 }

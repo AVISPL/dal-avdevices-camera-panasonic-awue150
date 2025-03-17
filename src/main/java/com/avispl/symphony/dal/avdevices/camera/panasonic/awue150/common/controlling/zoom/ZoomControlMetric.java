@@ -50,7 +50,7 @@ public enum ZoomControlMetric {
 	 * @return FocusControlMetric is the focus control that want to get
 	 */
 	public static ZoomControlMetric getByName(String name) {
-		return Arrays.stream(ZoomControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+		return Arrays.stream(values()).filter(control -> control.getName().equals(name)).findFirst()
 				.orElseThrow(() -> new IllegalStateException(String.format("Focus control %s is not supported.", name)));
 	}
 }

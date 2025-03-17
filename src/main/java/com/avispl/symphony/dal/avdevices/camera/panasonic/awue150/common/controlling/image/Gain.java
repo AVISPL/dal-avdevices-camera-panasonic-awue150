@@ -115,7 +115,7 @@ public enum Gain {
 	 * @return Shutter is the Shutter status that want to get
 	 */
 	public static Gain getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(Gain.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(G_0);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByUIName(String uiName) {
-		return Arrays.stream(Gain.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(G_0);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByAPINameFirst(String apiNameFirst) {
-		return Arrays.stream(Gain.values()).filter(status -> status.getApiNameFirst().equals(apiNameFirst)).findFirst().orElse(G_0);
+		return Arrays.stream(values()).filter(status -> status.getApiNameFirst().equals(apiNameFirst)).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByAPINameSecond(String apiName) {
-		return Arrays.stream(Gain.values()).filter(status -> status.getApiNameSecond().equals(apiName)).findFirst().orElse(G_0);
+		return Arrays.stream(values()).filter(status -> status.getApiNameSecond().equals(apiName)).findFirst().orElse(G_0);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public enum Gain {
 	 * @return Gain is the gain status that want to get
 	 */
 	public static Gain getByUINameSecond(String uiName) {
-		return Arrays.stream(Gain.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(G_0);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(G_0);
 	}
 
 }

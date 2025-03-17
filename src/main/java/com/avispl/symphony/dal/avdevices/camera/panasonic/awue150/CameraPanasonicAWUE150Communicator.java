@@ -27,7 +27,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.conn.HttpHostConnectException;
 
 import com.avispl.symphony.api.dal.control.Controller;
@@ -1983,6 +1982,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		return Integer.toHexString(currentValueInInteger);
 	}
 
+	@Override
+	public String doGet(String uri) throws Exception {
+		return super.doGet(buildRequestUrl(uri));
+	}
+
 	/**
 	 * Concatenates the {@code baseRequestUrl} with the uri passed in provided its not empty. Will also add the "/" if its not present in the
 	 * {@code baseRequestUrl}. <br>
@@ -1999,25 +2003,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		} else {
 			return this.baseRequestUrl.endsWith("/") ? this.baseRequestUrl + uri : this.baseRequestUrl + "/" + uri;
 		}
-	}
-
-	/**
-	 * Add request headers to the prepared requestBuilder object
-	 *
-	 * @param requestBuilder builder object to apply headers to
-	 * @return requestBuilder instance with proper authorization header specified
-	 * @since 3.0.0
-	 */
-	private RequestBuilder processRequestHeaders(RequestBuilder requestBuilder) {
-		boolean authenticationHeaderSpecified = StringUtils.isNotNullOrEmpty(authorizationHeader);
-		if (authenticationHeaderSpecified) {
-			requestBuilder.addHeader(HttpHeaders.AUTHORIZATION, this.authorizationHeader);
-			requestBuilder.addHeader(HttpHeaders.HOST, getHost());
-		} else if (StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
-			requestBuilder.addHeader(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
-					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
-		}
-		return requestBuilder;
 	}
 
 	/**
