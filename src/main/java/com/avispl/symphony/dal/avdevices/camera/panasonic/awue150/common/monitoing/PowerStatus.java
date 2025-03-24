@@ -82,7 +82,7 @@ public enum PowerStatus {
 	 * @return PowerStatus is the power status that want to get
 	 */
 	public static PowerStatus getByAPINameFirst(Map<String, String> apiValues) {
-		return Arrays.stream(PowerStatus.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(PowerStatus.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public enum PowerStatus {
 	 * @return PowerStatus is the power status that want to get
 	 */
 	public static PowerStatus getByCode(String code) {
-		return Arrays.stream(PowerStatus.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(PowerStatus.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public enum PowerStatus {
 	 * @return PowerStatus is the power status that want to get
 	 */
 	public static PowerStatus getByAPINameFirst(String apiNameFirst) {
-		return Arrays.stream(PowerStatus.values()).filter(status -> status.getApiNameFirst().equals(apiNameFirst)).findFirst().orElse(PowerStatus.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getApiNameFirst().equals(apiNameFirst)).findFirst().orElse(ERROR);
 	}
 }
 
