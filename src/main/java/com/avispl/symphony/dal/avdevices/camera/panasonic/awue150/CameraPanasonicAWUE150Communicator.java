@@ -2,6 +2,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150;
 
 import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.HttpHostConnectException;
 
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
@@ -360,7 +360,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					}
 				}
 			}
-		} catch (HttpHostConnectException e) {
+		} catch (ConnectException e) {
 			throw new ResourceNotReachableException(String.format("Error while connecting to %s: %s", host, e.getMessage()), e);
 		} catch (Exception e) {
 			throw new ResourceNotReachableException("Login failed" + e.getMessage(), e);
