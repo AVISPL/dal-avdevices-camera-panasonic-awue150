@@ -57,7 +57,7 @@ public enum SuperGain {
 	 * @return SuperGain is the super gain status that want to get
 	 */
 	public static SuperGain getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(SuperGain.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(SuperGain.OFF);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(OFF);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public enum SuperGain {
 	 * @return SuperGain is the super gain status that want to get
 	 */
 	public static SuperGain getByUIName(String uiName) {
-		return Arrays.stream(SuperGain.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(SuperGain.OFF);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(OFF);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public enum SuperGain {
 	 * @return SuperGain is the super gain status that want to get
 	 */
 	public static SuperGain getByAPIValue(String apiName) {
-		return Arrays.stream(SuperGain.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(SuperGain.OFF);
+		return Arrays.stream(values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(OFF);
 	}
 }
 

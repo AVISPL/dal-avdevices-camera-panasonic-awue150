@@ -89,7 +89,7 @@ public enum ErrorStatusInformation {
 	 * @return errorStatusInformation is the error status that want to get
 	 */
 	public static ErrorStatusInformation getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(ErrorStatusInformation.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ErrorStatusInformation.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 }
 

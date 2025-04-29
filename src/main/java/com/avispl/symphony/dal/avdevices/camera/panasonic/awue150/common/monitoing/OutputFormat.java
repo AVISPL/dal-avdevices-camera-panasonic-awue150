@@ -76,7 +76,7 @@ public enum OutputFormat {
 	 * @return outputFormat is the output format that want to get
 	 */
 	public static OutputFormat getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(OutputFormat.values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst().orElse(OutputFormat.ERROR);
+		return Arrays.stream(values()).filter(format -> apiValues.containsKey(format.getApiName())).findFirst().orElse(ERROR);
 	}
 }
 

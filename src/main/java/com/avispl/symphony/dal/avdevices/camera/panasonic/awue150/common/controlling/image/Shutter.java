@@ -70,7 +70,7 @@ public enum Shutter {
 	 * @return Shutter is the Shutter status that want to get
 	 */
 	public static Shutter getByAPINameFirst(Map<String, String> apiValues) {
-		return Arrays.stream(Shutter.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(Shutter.OFF);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(OFF);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public enum Shutter {
 	 * @return ShutterMode is the ShutterMode status that want to get
 	 */
 	public static Shutter getByUIName(String uiName) {
-		return Arrays.stream(Shutter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(Shutter.OFF);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(OFF);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public enum Shutter {
 	 * @return ShutterMode is the ShutterMode status that want to get
 	 */
 	public static Shutter getByAPINameSecond(String apiNameSecond) {
-		return Arrays.stream(Shutter.values()).filter(status -> status.getApiNameSecond().equals(apiNameSecond)).findFirst().orElse(Shutter.OFF);
+		return Arrays.stream(values()).filter(status -> status.getApiNameSecond().equals(apiNameSecond)).findFirst().orElse(OFF);
 	}
 }
 

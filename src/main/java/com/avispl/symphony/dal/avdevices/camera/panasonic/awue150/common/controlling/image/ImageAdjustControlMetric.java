@@ -59,7 +59,7 @@ public enum ImageAdjustControlMetric {
 	 * @return ImageAdjust is the image adjust control that want to get
 	 */
 	public static ImageAdjustControlMetric getByName(String name) {
-		return Arrays.stream(ImageAdjustControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst()
+		return Arrays.stream(values()).filter(control -> control.getName().equals(name)).findFirst()
 				.orElseThrow(()-> new IllegalStateException(String.format("Image adjust control %s is not supported.", name)));
 	}
 }

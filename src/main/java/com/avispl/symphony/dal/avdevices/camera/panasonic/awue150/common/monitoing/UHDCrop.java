@@ -59,7 +59,7 @@ public enum UHDCrop {
 	 * @return UHDCrop is the UHD crop status that want to get
 	 */
 	public static UHDCrop getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(UHDCrop.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(UHDCrop.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 }
 

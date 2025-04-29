@@ -2,6 +2,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150;
 
 import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -24,21 +24,16 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.security.auth.login.FailedLoginException;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.util.EntityUtils;
 
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
 import com.avispl.symphony.api.dal.dto.control.ControllableProperty;
 import com.avispl.symphony.api.dal.dto.monitor.ExtendedStatistics;
 import com.avispl.symphony.api.dal.dto.monitor.Statistics;
-import com.avispl.symphony.api.dal.error.CommandFailureException;
 import com.avispl.symphony.api.dal.error.ResourceNotReachableException;
 import com.avispl.symphony.api.dal.monitor.Monitorable;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.AuthorizationChallengeHandler;
@@ -99,7 +94,6 @@ import com.avispl.symphony.dal.util.StringUtils;
  * @since 1.0.0
  */
 public class CameraPanasonicAWUE150Communicator extends RestCommunicator implements Monitorable, Controller {
-
 	private Map<String, String> failedMonitor = new HashMap<>();
 	private boolean isEmergencyDelivery = false;
 	private ExtendedStatistics localExtendedStatistics = new ExtendedStatistics();
@@ -314,60 +308,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		if (StringUtils.isNotNullOrEmpty(authorizationHeader)) {
 			headers.set(AuthorizationChallengeHandler.AUTHORIZATION, authorizationHeader);
 			headers.set(HttpHeaders.HOST, getHost());
+		} else if(StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
+			headers.set(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
+					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
 		}
 		return super.putExtraRequestHeaders(httpMethod, uri, headers);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * Get data from uri path
-	 *
-	 * @param uri the uri is the path get from the configuration properties on the symphony portal
-	 * @return String This returns the status code and dataBody if the response get body not null
-	 * @throws Exception if getting information from the Uri failed
-	 */
-	@Override
-	public String doGet(String uri) throws Exception {
-		HttpClient client = this.obtainHttpClient(StringUtils.isNotNullOrEmpty(authorizationHeader));
-
-		String getUri = this.buildRequestUrl(uri);
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Performing a GET operation for " + getUri);
-		}
-
-		HttpResponse response = null;
-		try {
-			RequestBuilder requestBuilder = RequestBuilder.get().setUri(getUri);
-			processRequestHeaders(requestBuilder);
-			response = client.execute(requestBuilder.build());
-
-			int statusCode = response.getStatusLine().getStatusCode();
-			HttpEntity httpEntity = response.getEntity();
-
-			if (!HttpStatus.valueOf(statusCode).is2xxSuccessful()) {
-				if (HttpStatus.UNAUTHORIZED.value() == statusCode) {
-					throw new FailedLoginException("Failed to login, please check the username and password");
-				}
-				if (HttpStatus.BAD_REQUEST.value() == statusCode) {
-					throw new ResourceNotReachableException("Bad request, please check the uri or parameters");
-				}
-				if (HttpStatus.REQUEST_TIMEOUT.value() == statusCode) {
-					throw new TimeoutException("Request time out");
-				}
-				throw new CommandFailureException(getHost(), requestBuilder.toString(), response.toString());
-			}
-			if (httpEntity != null) {
-				String responseBody = EntityUtils.toString(httpEntity);
-				logger.debug(String.format("<%s> : %s", statusCode, responseBody));
-				return responseBody;
-			}
-		} finally {
-			if (response instanceof CloseableHttpResponse) {
-				((CloseableHttpResponse) response).close();
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -415,7 +360,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 					}
 				}
 			}
-		} catch (HttpHostConnectException e) {
+		} catch (ConnectException e) {
 			throw new ResourceNotReachableException(String.format("Error while connecting to %s: %s", host, e.getMessage()), e);
 		} catch (Exception e) {
 			throw new ResourceNotReachableException("Login failed" + e.getMessage(), e);
@@ -423,7 +368,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
-	 * This method is used to retrieve system information by send get request to "http://***REMOVED***/cgi-bin/getinfo?FILE=1"
+	 * This method is used to retrieve system information by send get request to "http:***REMOVED***cgi-bin/getinfo?FILE=1"
 	 *
 	 * @param stats store all statistics
 	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
@@ -465,7 +410,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
-	 * This method is used to retrieve live camera information by send get request to "http://***REMOVED***/live/camdata.html"
+	 * This method is used to retrieve live camera information by send get request to "http:***REMOVED***live/camdata.html"
 	 *
 	 * @param stats store all statistics
 	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
@@ -599,7 +544,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
-	 * This method is used to retrieve model name information by send get request to "http://***REMOVED***/cgi-bin/model_serial"
+	 * This method is used to retrieve model name information by send get request to "http:***REMOVED***cgi-bin/model_serial"
 	 *
 	 * @param stats store all statistics
 	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
@@ -618,7 +563,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
-	 * This method is used to retrieve model name information by send get request to "http://***REMOVED***//cgi-bin/aw_ptz?cmd=%23PTD&res=1"
+	 * This method is used to retrieve model name information by send get request to "http:***REMOVED***cgi-bin/aw_ptz?cmd=%23PTD&res=1"
 	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 *
 	 * @throws FailedLoginException when login fails
@@ -680,7 +625,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
-	 * This method is used to retrieve model name information by send get request to "http://***REMOVED***//cgi-bin/aw_ptz?cmd=%23PTD&res=1"
+	 * This method is used to retrieve model name information by send get request to "http:***REMOVED***cgi-bin/aw_ptz?cmd=%23PTD&res=1"
 	 * When the response is null or empty, the failedMonitor is going to update and exception is not populated
 	 *
 	 * @throws FailedLoginException when login fails
@@ -2037,6 +1982,11 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		return Integer.toHexString(currentValueInInteger);
 	}
 
+	@Override
+	public String doGet(String uri) throws Exception {
+		return super.doGet(buildRequestUrl(uri));
+	}
+
 	/**
 	 * Concatenates the {@code baseRequestUrl} with the uri passed in provided its not empty. Will also add the "/" if its not present in the
 	 * {@code baseRequestUrl}. <br>
@@ -2053,25 +2003,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		} else {
 			return this.baseRequestUrl.endsWith("/") ? this.baseRequestUrl + uri : this.baseRequestUrl + "/" + uri;
 		}
-	}
-
-	/**
-	 * Add request headers to the prepared requestBuilder object
-	 *
-	 * @param requestBuilder builder object to apply headers to
-	 * @return requestBuilder instance with proper authorization header specified
-	 * @since 3.0.0
-	 */
-	private RequestBuilder processRequestHeaders(RequestBuilder requestBuilder) {
-		boolean authenticationHeaderSpecified = StringUtils.isNotNullOrEmpty(authorizationHeader);
-		if (authenticationHeaderSpecified) {
-			requestBuilder.addHeader(HttpHeaders.AUTHORIZATION, this.authorizationHeader);
-			requestBuilder.addHeader(HttpHeaders.HOST, getHost());
-		} else if (StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
-			requestBuilder.addHeader(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
-					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
-		}
-		return requestBuilder;
 	}
 
 	/**
