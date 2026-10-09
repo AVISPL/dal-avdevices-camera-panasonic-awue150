@@ -83,7 +83,7 @@ public enum OperationLock {
 	 * @return operationLock is the operation lockFan1Status that want to get
 	 */
 	public static OperationLock getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(OperationLock.values()).filter(operation -> apiValues.containsKey(operation.getApiNameFirst())).findFirst().orElse(OperationLock.ERROR);
+		return Arrays.stream(values()).filter(operation -> apiValues.containsKey(operation.getApiNameFirst())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public enum OperationLock {
 	 * @return PowerStatus is the operation lock status that want to get
 	 */
 	public static OperationLock getByCode(String code) {
-		return Arrays.stream(OperationLock.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(OperationLock.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(ERROR);
 	}
 
 }

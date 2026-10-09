@@ -59,7 +59,7 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the night day filter status that want to get
 	 */
 	public static NightDayFilter getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(NightDayFilter.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(THROUGH);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(THROUGH);
 
 	}
 
@@ -70,7 +70,7 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the ND filter status that want to get
 	 */
 	public static NightDayFilter getByUIName(String uiName) {
-		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(THROUGH);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(THROUGH);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public enum NightDayFilter {
 	 * @return NightDayFilter is the ND filter status that want to get
 	 */
 	public static NightDayFilter getByAPIName(String apiName) {
-		return Arrays.stream(NightDayFilter.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(THROUGH);
+		return Arrays.stream(values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(THROUGH);
 
 	}
 }

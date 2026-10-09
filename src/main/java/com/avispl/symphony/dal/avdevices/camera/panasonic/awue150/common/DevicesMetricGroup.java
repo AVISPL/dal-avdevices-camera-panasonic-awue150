@@ -55,7 +55,7 @@ public enum DevicesMetricGroup {
 	 * @return DevicesMetricGroup is the device metric group that want to get
 	 */
 	public static DevicesMetricGroup getByName(String name) {
-		Optional<DevicesMetricGroup> devicesMetricGroup = Arrays.stream(DevicesMetricGroup.values()).filter(group -> group.getName().equals(name)).findFirst();
+		Optional<DevicesMetricGroup> devicesMetricGroup = Arrays.stream(values()).filter(group -> group.getName().equals(name)).findFirst();
 		if (devicesMetricGroup.isPresent()) {
 			return devicesMetricGroup.get();
 		} else {

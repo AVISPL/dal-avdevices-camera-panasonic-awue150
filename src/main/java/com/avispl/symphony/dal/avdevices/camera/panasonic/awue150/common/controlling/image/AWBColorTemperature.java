@@ -58,7 +58,7 @@ public enum AWBColorTemperature {
 	 * @return AWBColorTemperature is the AWB Color Temperature status that want to get
 	 */
 	public static AWBColorTemperature getByAPIName(String apiName) {
-		return Arrays.stream(AWBColorTemperature.values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(AWBColorTemperature.VALID);
+		return Arrays.stream(values()).filter(status -> status.getApiName().equals(apiName)).findFirst().orElse(VALID);
 	}
 }
 

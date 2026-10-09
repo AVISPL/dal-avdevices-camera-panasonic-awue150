@@ -82,7 +82,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(AutoFocus.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(AutoFocus.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByCode(String code) {
-		return Arrays.stream(AutoFocus.values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(AutoFocus.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getCode().equals(code)).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -102,7 +102,7 @@ public enum AutoFocus {
 	 * @return autoFocus is the autofocus status that want to get
 	 */
 	public static AutoFocus getByApiName2(String apiName2) {
-		return Arrays.stream(AutoFocus.values()).filter(status -> status.getApiNameSecond().equals(apiName2)).findFirst().orElse(AutoFocus.ERROR);
+		return Arrays.stream(values()).filter(status -> status.getApiNameSecond().equals(apiName2)).findFirst().orElse(ERROR);
 	}
 }
 

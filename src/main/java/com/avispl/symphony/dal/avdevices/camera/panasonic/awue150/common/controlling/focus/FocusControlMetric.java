@@ -54,7 +54,7 @@ public enum FocusControlMetric {
 	 * @return FocusControlMetric is the focus control that want to get
 	 */
 	public static FocusControlMetric getByName(String name) {
-		Optional<FocusControlMetric> focusControlMetric = Arrays.stream(FocusControlMetric.values()).filter(control -> control.getName().equals(name)).findFirst();
+		Optional<FocusControlMetric> focusControlMetric = Arrays.stream(values()).filter(control -> control.getName().equals(name)).findFirst();
 		if (focusControlMetric.isPresent()) {
 			return focusControlMetric.get();
 		}else {

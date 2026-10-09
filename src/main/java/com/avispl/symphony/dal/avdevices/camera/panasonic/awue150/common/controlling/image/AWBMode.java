@@ -72,7 +72,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByAPINameFirst(Map<String, String> apiValues) {
-		return Arrays.stream(AWBMode.values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(AWBMode.AUTO);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiNameFirst())).findFirst().orElse(AUTO);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByUIName(String uiName) {
-		return Arrays.stream(AWBMode.values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(AWBMode.AUTO);
+		return Arrays.stream(values()).filter(status -> status.getUiName().equals(uiName)).findFirst().orElse(AUTO);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public enum AWBMode {
 	 * @return AWBMode is the AWBMode status that want to get
 	 */
 	public static AWBMode getByAPINameSecond(String apiName) {
-		return Arrays.stream(AWBMode.values()).filter(status -> status.getApiNameSecond().equals(apiName)).findFirst().orElse(AWBMode.AUTO);
+		return Arrays.stream(values()).filter(status -> status.getApiNameSecond().equals(apiName)).findFirst().orElse(AUTO);
 	}
 }
 

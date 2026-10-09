@@ -59,7 +59,7 @@ public enum PowerOnPosition {
 	 * @return powerOnPosition is the power on position status that want to get
 	 */
 	public static PowerOnPosition getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(PowerOnPosition.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(PowerOnPosition.NONE);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(NONE);
 	}
 }
 

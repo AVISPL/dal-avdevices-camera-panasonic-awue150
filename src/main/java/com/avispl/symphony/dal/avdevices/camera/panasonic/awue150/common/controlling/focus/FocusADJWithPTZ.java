@@ -70,7 +70,7 @@ public enum FocusADJWithPTZ {
 	 * @return focusADJWithPTZ is the focus ADJ with PTZ status that want to get
 	 */
 	public static FocusADJWithPTZ getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(FocusADJWithPTZ.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(FocusADJWithPTZ.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public enum FocusADJWithPTZ {
 	 * @return focusADJWithPTZ is the focus ADJ with PTZ status that want to get
 	 */
 	public static FocusADJWithPTZ getByAPIValue(String apiValue) {
-		return Arrays.stream(FocusADJWithPTZ.values()).filter(status -> apiValue.equals(status.getApiName())).findFirst().orElse(FocusADJWithPTZ.ERROR);
+		return Arrays.stream(values()).filter(status -> apiValue.equals(status.getApiName())).findFirst().orElse(ERROR);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public enum FocusADJWithPTZ {
 	 * @return focusADJWithPTZ is the focus ADJ with PTZ status that want to get
 	 */
 	public static FocusADJWithPTZ getByAPICode(String code) {
-		return Arrays.stream(FocusADJWithPTZ.values()).filter(status -> code.equals(status.getCode())).findFirst().orElse(FocusADJWithPTZ.ERROR);
+		return Arrays.stream(values()).filter(status -> code.equals(status.getCode())).findFirst().orElse(ERROR);
 	}
 }
 

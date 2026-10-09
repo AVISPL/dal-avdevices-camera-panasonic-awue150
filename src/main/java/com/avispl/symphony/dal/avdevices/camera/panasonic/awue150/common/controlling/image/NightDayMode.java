@@ -69,7 +69,7 @@ public enum NightDayMode {
 	 * @return SuperGain is the night/day status that want to get
 	 */
 	public static NightDayMode getByAPIValue(Map<String, String> apiValues) {
-		return Arrays.stream(NightDayMode.values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(NightDayMode.DAY);
+		return Arrays.stream(values()).filter(status -> apiValues.containsKey(status.getApiName())).findFirst().orElse(DAY);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public enum NightDayMode {
 	 * @return NightDayMode is the night day mode status that want to get
 	 */
 	public static NightDayMode getByAPIValue(String apiValue) {
-		return Arrays.stream(NightDayMode.values()).filter(status -> apiValue.equals(status.getApiName())).findFirst().orElse(NightDayMode.DAY);
+		return Arrays.stream(values()).filter(status -> apiValue.equals(status.getApiName())).findFirst().orElse(DAY);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public enum NightDayMode {
 	 * @return NightDayMode is the night day mode status that want to get
 	 */
 	public static NightDayMode getByCode(String code) {
-		return Arrays.stream(NightDayMode.values()).filter(status -> code.equals(status.getCode())).findFirst().orElse(NightDayMode.DAY);
+		return Arrays.stream(values()).filter(status -> code.equals(status.getCode())).findFirst().orElse(DAY);
 	}
 }
 
