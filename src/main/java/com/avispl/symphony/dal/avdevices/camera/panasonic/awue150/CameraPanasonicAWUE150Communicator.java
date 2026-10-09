@@ -23,11 +23,9 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.http.Header;
 
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
@@ -334,30 +332,25 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		try {
 			HttpClient httpClient = this.obtainHttpClient(true);
 			HttpGet httpGet = new HttpGet(buildDeviceFullPath(DeviceURL.FIRST_LOGIN));
-			HttpResponse response = null;
-
-			try {
-				response = httpClient.execute(httpGet);
-			} finally {
-				if (response instanceof CloseableHttpResponse) {
-					((CloseableHttpResponse) response).close();
+			// The response handler releases the connection once the status code and challenge header are read
+			String headerResponse = httpClient.execute(httpGet, response -> {
+				if (response.getCode() != HttpStatus.UNAUTHORIZED.value()) {
+					return null;
 				}
-			}
+				Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
+				return header != null ? header.toString() : null;
+			});
 
-			Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
-			if (header != null) {
-				String headerResponse = header.toString();
-				if (response.getStatusLine().getStatusCode() == HttpStatus.UNAUTHORIZED.value() && StringUtils.isNotNullOrEmpty(headerResponse)) {
-					AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
-					List<Map<String, String>> challenges = new ArrayList<>();
-					Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
-					challenges.add(challenge);
+			if (StringUtils.isNotNullOrEmpty(headerResponse)) {
+				AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
+				List<Map<String, String>> challenges = new ArrayList<>();
+				Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
+				challenges.add(challenge);
 
-					if (headerResponse.contains(DeviceConstant.BASIC)) {
-						authorizationHeader = authorizationChallengeHandler.handleBasic();
-					} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
-						authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
-					}
+				if (headerResponse.contains(DeviceConstant.BASIC)) {
+					authorizationHeader = authorizationChallengeHandler.handleBasic();
+				} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
+					authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
 				}
 			}
 		} catch (ConnectException e) {
