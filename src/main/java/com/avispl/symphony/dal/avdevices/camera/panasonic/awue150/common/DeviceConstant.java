@@ -25,7 +25,6 @@ public class DeviceConstant {
 	public static final String KELVIN = "K";
 	public static final String SPACE = " ";
 	public static final String EMPTY = "";
-	public static final String HTTPS = "http://";
 	public static final String NONE = "None";
 	public static final String ON = "On";
 	public static final String OFF = "Off";
