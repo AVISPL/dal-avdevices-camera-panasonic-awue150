@@ -96,7 +96,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private boolean isEmergencyDelivery = false;
 	private ExtendedStatistics localExtendedStatistics = new ExtendedStatistics();
 	private boolean isPresetEdited;
-	private String baseRequestUrl;
 
 	/**
 	 * store configManagement adapter properties
@@ -305,7 +304,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	protected HttpHeaders putExtraRequestHeaders(HttpMethod httpMethod, String uri, HttpHeaders headers) throws Exception {
 		if (StringUtils.isNotNullOrEmpty(authorizationHeader)) {
 			headers.set(AuthorizationChallengeHandler.AUTHORIZATION, authorizationHeader);
-			headers.set(HttpHeaders.HOST, getHost());
+			headers.set(HttpHeaders.HOST, buildHostWithPort());
 		} else if(StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
 			headers.set(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
 					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
@@ -320,9 +319,24 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private String buildDeviceFullPath(String path) {
 		Objects.requireNonNull(path);
 
-		return DeviceConstant.HTTPS
-				+ getHost()
-				+ path;
+		return getProtocol() + "://" + buildHostWithPort() + path;
+	}
+
+	/**
+	 * Builds the host part of the device URL, appending the configured port when it is not the default one for the protocol
+	 *
+	 * @return host with optional port, IPv6 literals are wrapped in square brackets
+	 */
+	private String buildHostWithPort() {
+		String host = getHost();
+		if (host.contains(DeviceConstant.COLON) && !host.startsWith("[")) {
+			host = "[" + host + "]";
+		}
+		int port = getPort();
+		boolean isDefaultPort = port <= 0
+				|| (port == 80 && "http".equalsIgnoreCase(getProtocol()))
+				|| (port == 443 && "https".equalsIgnoreCase(getProtocol()));
+		return isDefaultPort ? host : host + DeviceConstant.COLON + port;
 	}
 
 	/**
@@ -1973,29 +1987,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
 		int currentValueInInteger = (int) (b * a / convertFactor + Integer.parseInt(apiMinValueInHex, 16));
 		return Integer.toHexString(currentValueInInteger);
-	}
-
-	@Override
-	public String doGet(String uri) throws Exception {
-		return super.doGet(buildRequestUrl(uri));
-	}
-
-	/**
-	 * Concatenates the {@code baseRequestUrl} with the uri passed in provided its not empty. Will also add the "/" if its not present in the
-	 * {@code baseRequestUrl}. <br>
-	 * This method has package visibility so other classes in base communicator package can access it if needed.
-	 *
-	 * @param uri URI to append to a base URL
-	 * @return completed {@code baseRequestUrl}
-	 */
-	private String buildRequestUrl(String uri) {
-		if (StringUtils.isNullOrEmpty(uri)) {
-			return this.baseRequestUrl;
-		} else if (uri.indexOf("://") > 0) {
-			return uri;
-		} else {
-			return this.baseRequestUrl.endsWith("/") ? this.baseRequestUrl + uri : this.baseRequestUrl + "/" + uri;
-		}
 	}
 
 	/**
