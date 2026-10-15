@@ -23,11 +23,9 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.security.auth.login.FailedLoginException;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.http.Header;
 
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
@@ -98,7 +96,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private boolean isEmergencyDelivery = false;
 	private ExtendedStatistics localExtendedStatistics = new ExtendedStatistics();
 	private boolean isPresetEdited;
-	private String baseRequestUrl;
 
 	/**
 	 * store configManagement adapter properties
@@ -307,7 +304,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	protected HttpHeaders putExtraRequestHeaders(HttpMethod httpMethod, String uri, HttpHeaders headers) throws Exception {
 		if (StringUtils.isNotNullOrEmpty(authorizationHeader)) {
 			headers.set(AuthorizationChallengeHandler.AUTHORIZATION, authorizationHeader);
-			headers.set(HttpHeaders.HOST, getHost());
+			headers.set(HttpHeaders.HOST, buildHostWithPort());
 		} else if(StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
 			headers.set(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
 					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
@@ -322,9 +319,24 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private String buildDeviceFullPath(String path) {
 		Objects.requireNonNull(path);
 
-		return DeviceConstant.HTTPS
-				+ getHost()
-				+ path;
+		return getProtocol() + "://" + buildHostWithPort() + path;
+	}
+
+	/**
+	 * Builds the host part of the device URL, appending the configured port when it is not the default one for the protocol
+	 *
+	 * @return host with optional port, IPv6 literals are wrapped in square brackets
+	 */
+	private String buildHostWithPort() {
+		String host = getHost();
+		if (host.contains(DeviceConstant.COLON) && !host.startsWith("[")) {
+			host = "[" + host + "]";
+		}
+		int port = getPort();
+		boolean isDefaultPort = port <= 0
+				|| (port == 80 && "http".equalsIgnoreCase(getProtocol()))
+				|| (port == 443 && "https".equalsIgnoreCase(getProtocol()));
+		return isDefaultPort ? host : host + DeviceConstant.COLON + port;
 	}
 
 	/**
@@ -334,30 +346,25 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		try {
 			HttpClient httpClient = this.obtainHttpClient(true);
 			HttpGet httpGet = new HttpGet(buildDeviceFullPath(DeviceURL.FIRST_LOGIN));
-			HttpResponse response = null;
-
-			try {
-				response = httpClient.execute(httpGet);
-			} finally {
-				if (response instanceof CloseableHttpResponse) {
-					((CloseableHttpResponse) response).close();
+			// The response handler releases the connection once the status code and challenge header are read
+			String headerResponse = httpClient.execute(httpGet, response -> {
+				if (response.getCode() != HttpStatus.UNAUTHORIZED.value()) {
+					return null;
 				}
-			}
+				Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
+				return header != null ? header.toString() : null;
+			});
 
-			Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
-			if (header != null) {
-				String headerResponse = header.toString();
-				if (response.getStatusLine().getStatusCode() == HttpStatus.UNAUTHORIZED.value() && StringUtils.isNotNullOrEmpty(headerResponse)) {
-					AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
-					List<Map<String, String>> challenges = new ArrayList<>();
-					Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
-					challenges.add(challenge);
+			if (StringUtils.isNotNullOrEmpty(headerResponse)) {
+				AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
+				List<Map<String, String>> challenges = new ArrayList<>();
+				Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
+				challenges.add(challenge);
 
-					if (headerResponse.contains(DeviceConstant.BASIC)) {
-						authorizationHeader = authorizationChallengeHandler.handleBasic();
-					} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
-						authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
-					}
+				if (headerResponse.contains(DeviceConstant.BASIC)) {
+					authorizationHeader = authorizationChallengeHandler.handleBasic();
+				} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
+					authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
 				}
 			}
 		} catch (ConnectException e) {
@@ -1980,29 +1987,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		int b = Integer.parseInt(apiMaxValueInHex, 16) - Integer.parseInt(apiMinValueInHex, 16);
 		int currentValueInInteger = (int) (b * a / convertFactor + Integer.parseInt(apiMinValueInHex, 16));
 		return Integer.toHexString(currentValueInInteger);
-	}
-
-	@Override
-	public String doGet(String uri) throws Exception {
-		return super.doGet(buildRequestUrl(uri));
-	}
-
-	/**
-	 * Concatenates the {@code baseRequestUrl} with the uri passed in provided its not empty. Will also add the "/" if its not present in the
-	 * {@code baseRequestUrl}. <br>
-	 * This method has package visibility so other classes in base communicator package can access it if needed.
-	 *
-	 * @param uri URI to append to a base URL
-	 * @return completed {@code baseRequestUrl}
-	 */
-	private String buildRequestUrl(String uri) {
-		if (StringUtils.isNullOrEmpty(uri)) {
-			return this.baseRequestUrl;
-		} else if (uri.indexOf("://") > 0) {
-			return uri;
-		} else {
-			return this.baseRequestUrl.endsWith("/") ? this.baseRequestUrl + uri : this.baseRequestUrl + "/" + uri;
-		}
 	}
 
 	/**
