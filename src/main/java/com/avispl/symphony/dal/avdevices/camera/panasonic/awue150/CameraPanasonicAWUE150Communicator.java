@@ -730,14 +730,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String focusControlFarName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_FAR.getName());
 		String focusControlNearName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_NEAR.getName());
 		String focusSpeedControlName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_SPEED.getName());
-		String focusSpeedCurrentValueName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_SPEED.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName());
 		String focusADJWithPTZName = groupName.concat(FocusControlMetric.FOCUS_ADJ_WITH_PTZ.getName());
 
 		if (cachedLiveCameraInfo.getAutoFocus().equals(AutoFocus.AUTO)) {
 			Set<String> unusedKeys = new HashSet<>();
 			unusedKeys.add(focusControlName);
 			unusedKeys.add(focusSpeedControlName);
-			unusedKeys.add(focusSpeedCurrentValueName);
 			unusedKeys.add(focusControlFarName);
 			unusedKeys.add(focusControlNearName);
 			unusedKeys.add(focusADJWithPTZName);
@@ -748,7 +746,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			addAdvanceControlProperties(advancedControllableProperties, stats,
 					createSlider(stats, focusSpeedControlName, focusSpeedControlLabelStart, focusControlLabelEnd,
 							DeviceConstant.MIN_FOCUS_SPEED_UI_VALUE, DeviceConstant.MAX_FOCUS_SPEED_UI_VALUE, cachedFocusControlSpeed));
-			stats.put(focusSpeedCurrentValueName, String.valueOf((int) cachedFocusControlSpeed));
 			addAdvanceControlProperties(advancedControllableProperties, stats,
 					createButton(focusControlNearName, FocusControlMetric.NEAR.getName(), DeviceConstant.PUSHING));
 			addAdvanceControlProperties(advancedControllableProperties, stats,
@@ -760,8 +757,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createSwitch(groupName.concat(FocusControlMetric.AUTO_FOCUS.getName()), cachedLiveCameraInfo.getAutoFocus().getCode(), DeviceConstant.OFF, DeviceConstant.ON));
 
 		stats.put(groupName.concat(FocusControlMetric.FOCUS_MODE.getName()), cachedLiveCameraInfo.getAutoFocus().getUiName());
-		stats.put(groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getFocusUIValue()), DeviceConstant.NONE));
 	}
 
 	/**
@@ -1100,7 +1095,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createSlider(stats, panTiltSpeedLabelName, labelStart, labelEnd, DeviceConstant.MIN_PAN_TILT_SPEED_UI_VALUE, DeviceConstant.MAX_PAN_TILT_SPEED_UI_VALUE, cachedPanTiltControlSpeed));
 		stats.put(groupName.concat(PanTiltControlMetric.POWER_ON_POSITION.getName()), cachedLiveCameraInfo.getPowerOnPosition().getUiName());
-		stats.put(groupName.concat(PanTiltControlMetric.PT_SPEED_CURRENT_VALUE.getName()), String.valueOf((int) cachedPanTiltControlSpeed));
 
 		convertPanTiltPositionFromApiToUiValue(getDefaultValueForNullData(cachedLiveCameraInfo.getPanTiltPosition(), DeviceConstant.EMPTY));
 		stats.put(groupName.concat(PanTiltControlMetric.PAN_ABSOLUTE_POSITION_CONTROL.getName()), cachedLiveCameraInfo.getPanPosition());
@@ -1457,9 +1451,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createButton(groupName.concat(ZoomControlMetric.ZOOM_OUT.getName()), ZoomControlMetric.WIDE.getName(), DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createButton(groupName.concat(ZoomControlMetric.ZOOM_IN.getName()), ZoomControlMetric.TELE.getName(), DeviceConstant.PUSHING));
-		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getZoomUIValue()), DeviceConstant.NONE));
-		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL_SPEED.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()), String.valueOf((int) cachedZoomControlSpeed));
 	}
 
 	/**
@@ -1636,9 +1627,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 		addAdvanceControlProperties(advancedControllableProperties, stats, createSlider(stats, groupName.concat(ImageAdjustControlMetric.IRIS.getName()), irisControlLabelStart, irisControlLabelEnd,
 				minIrisUIValue, DeviceConstant.MAX_IRIS_UI_VALUE, DeviceConstant.MAX_IRIS_UI_VALUE - currentIrisPosition + minIrisUIValue));
-
-		stats.put(groupName.concat(ImageAdjustControlMetric.IRIS.getName()).concat(ImageAdjustControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(currentIrisPosition), DeviceConstant.NONE));
 	}
 
 	/**
