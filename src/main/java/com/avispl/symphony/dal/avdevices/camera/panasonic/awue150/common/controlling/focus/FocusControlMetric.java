@@ -22,7 +22,6 @@ public enum FocusControlMetric {
 	FOCUS_CONTROL("FocusControl"),
 	FOCUS_CONTROL_NEAR("FocusControlNear"),
 	FOCUS_CONTROL_FAR("FocusControlFar"),
-	CURRENT_VALUE("CurrentValue"),
 	NEAR("Near"),
 	FAR("Far"),
 	FOCUS_MODE("FocusMode");
