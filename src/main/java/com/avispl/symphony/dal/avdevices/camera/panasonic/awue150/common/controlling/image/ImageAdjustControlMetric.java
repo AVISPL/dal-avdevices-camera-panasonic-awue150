@@ -28,7 +28,6 @@ public enum ImageAdjustControlMetric {
 	AWB_R_GAIN("AWBRGain"),
 	AWB_B_GAIN("AWBBGain"),
 	AWB_G_GAIN("AWBGAxis"),
-	CURRENT_VALUE("CurrentValue"),
 	NIGHT_DAY_MODE("NightDayMode"),
 	FOCUS_MODE("FocusMode");
 

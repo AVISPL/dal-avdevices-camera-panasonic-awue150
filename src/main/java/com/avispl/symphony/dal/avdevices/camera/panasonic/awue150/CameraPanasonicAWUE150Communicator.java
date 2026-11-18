@@ -3,6 +3,7 @@ package com.avispl.symphony.dal.avdevices.camera.panasonic.awue150;
 import static com.avispl.symphony.dal.util.ControllablePropertyFactory.createDropdown;
 
 import java.net.ConnectException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -68,6 +70,7 @@ import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoi
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.OutputFormat;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.PowerStatus;
 import com.avispl.symphony.dal.avdevices.camera.panasonic.awue150.common.monitoing.UHDCrop;
+import com.avispl.symphony.dal.communicator.HttpCommunicator;
 import com.avispl.symphony.dal.communicator.RestCommunicator;
 import com.avispl.symphony.dal.util.StringUtils;
 
@@ -113,9 +116,37 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	private static List<String> presetModes = new ArrayList<>();
 
 	/**
-	 * Stored authorization value of basic/ digest authentication
+	 * Authentication schemes the camera can challenge for
 	 */
-	private String authorizationHeader;
+	private enum DeviceAuthentication {
+		/**
+		 * No Basic or Digest challenge received yet
+		 */
+		UNKNOWN,
+		/**
+		 * HTTP Basic authentication
+		 */
+		BASIC,
+		/**
+		 * HTTP Digest authentication
+		 */
+		DIGEST
+	}
+
+	/**
+	 * Authentication scheme from the latest Basic or Digest challenge of first_login
+	 */
+	private volatile DeviceAuthentication deviceAuthentication = DeviceAuthentication.UNKNOWN;
+
+	/**
+	 * Builds the Basic and Digest authorization values from the configured credentials
+	 */
+	private volatile AuthorizationChallengeHandler challengeHandler;
+
+	/**
+	 * Parameters of the latest Digest challenge of first_login
+	 */
+	private volatile List<Map<String, String>> digestChallenges = Collections.emptyList();
 
 	/**
 	 * ReentrantLock to prevent null pointer exception to localExtendedStatistics when controlProperty method is called before GetMultipleStatistics method.
@@ -146,6 +177,14 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	 * Store current preset control
 	 */
 	private String cachedPresetControl = DeviceConstant.DEFAULT_PRESET;
+
+	/**
+	 * Creates the communicator with the HttpCommunicator authentication disabled, so each request carries only the
+	 * Authorization header built by {@link #putExtraRequestHeaders(HttpMethod, String, HttpHeaders)}
+	 */
+	public CameraPanasonicAWUE150Communicator() {
+		setAuthenticationScheme(HttpCommunicator.AuthenticationScheme.None);
+	}
 
 	/**
 	 * Retrieves {@link #configManagement}
@@ -181,7 +220,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			if (!isEmergencyDelivery) {
 
 				// login for the first time
-				if (StringUtils.isNullOrEmpty(authorizationHeader)) {
+				if (deviceAuthentication == DeviceAuthentication.UNKNOWN) {
 					login();
 				}
 				// retrieve monitoring/ controlling data
@@ -298,18 +337,58 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 	}
 
 	/**
+	 * Adds the Authorization header: the Basic value, or a Digest value computed for this request's method and request
+	 * target, once first_login has challenged for that scheme; a Basic value from the configured credentials otherwise
+	 *
 	 * @return HttpHeaders contain digest/ basic authorization header
 	 */
 	@Override
 	protected HttpHeaders putExtraRequestHeaders(HttpMethod httpMethod, String uri, HttpHeaders headers) throws Exception {
-		if (StringUtils.isNotNullOrEmpty(authorizationHeader)) {
-			headers.set(AuthorizationChallengeHandler.AUTHORIZATION, authorizationHeader);
+		String authorization = buildAuthorization(httpMethod.name(), uri);
+		if (StringUtils.isNotNullOrEmpty(authorization)) {
+			headers.set(AuthorizationChallengeHandler.AUTHORIZATION, authorization);
 			headers.set(HttpHeaders.HOST, buildHostWithPort());
 		} else if(StringUtils.isNotNullOrEmpty(getLogin()) || StringUtils.isNotNullOrEmpty(getPassword())) {
 			headers.set(WebClientConstant.AUTHORIZATION_HEADER_DEFAULT, WebClientConstant.AUTHENTICATION_METHOD_BASIC +
 					DeviceConstant.SPACE + Base64.getEncoder().encodeToString(String.format("%s:%s", getLogin(), getPassword()).getBytes()));
 		}
 		return super.putExtraRequestHeaders(httpMethod, uri, headers);
+	}
+
+	/**
+	 * Builds the Authorization header value of a request for the scheme first_login challenged for
+	 *
+	 * @param method HTTP method of the request
+	 * @param url URL of the request as passed to RestCommunicator
+	 * @return Authorization header value, or null when no Basic or Digest challenge has been received
+	 * @throws Exception when the request target cannot be resolved
+	 */
+	private String buildAuthorization(String method, String url) throws Exception {
+		AuthorizationChallengeHandler handler = challengeHandler;
+		if (handler == null) {
+			return null;
+		}
+		switch (deviceAuthentication) {
+			case BASIC:
+				return handler.handleBasic();
+			case DIGEST:
+				return handler.handleDigest(method, resolveRequestTarget(url), digestChallenges, () -> new byte[0]);
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Resolves the request target that RestTemplate sends for a URL: the encoded path and query, used as the Digest uri
+	 *
+	 * @param url URL of the request as passed to RestCommunicator
+	 * @return encoded path, followed by "?" and the encoded query when the URL has one
+	 * @throws Exception when the RestTemplate cannot be obtained
+	 */
+	private String resolveRequestTarget(String url) throws Exception {
+		URI expanded = obtainRestTemplate().getUriTemplateHandler().expand(url);
+		String path = StringUtils.isNullOrEmpty(expanded.getRawPath()) ? "/" : expanded.getRawPath();
+		return expanded.getRawQuery() == null ? path : path + "?" + expanded.getRawQuery();
 	}
 
 	/**
@@ -346,31 +425,50 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		try {
 			HttpClient httpClient = this.obtainHttpClient(true);
 			HttpGet httpGet = new HttpGet(buildDeviceFullPath(DeviceURL.FIRST_LOGIN));
-			// The response handler releases the connection once the status code and challenge header are read
-			String headerResponse = httpClient.execute(httpGet, response -> {
-				if (response.getCode() != HttpStatus.UNAUTHORIZED.value()) {
-					return null;
+			// The response handler releases the connection once the status code and challenge headers are read
+			httpClient.execute(httpGet, response -> {
+				if (response.getCode() == HttpStatus.UNAUTHORIZED.value()) {
+					applyChallenges(response.getHeaders(AuthorizationChallengeHandler.WWW_AUTHENTICATE));
 				}
-				Header header = response.getFirstHeader(AuthorizationChallengeHandler.WWW_AUTHENTICATE);
-				return header != null ? header.toString() : null;
+				return null;
 			});
-
-			if (StringUtils.isNotNullOrEmpty(headerResponse)) {
-				AuthorizationChallengeHandler authorizationChallengeHandler = new AuthorizationChallengeHandler(getLogin(), getPassword());
-				List<Map<String, String>> challenges = new ArrayList<>();
-				Map<String, String> challenge = authorizationChallengeHandler.parseAuthenticationOrAuthorizationHeader(headerResponse);
-				challenges.add(challenge);
-
-				if (headerResponse.contains(DeviceConstant.BASIC)) {
-					authorizationHeader = authorizationChallengeHandler.handleBasic();
-				} else if (headerResponse.contains(DeviceConstant.DIGEST)) {
-					authorizationHeader = authorizationChallengeHandler.handleDigest(HttpMethod.GET.toString(), DeviceURL.FIRST_LOGIN, challenges, null);
-				}
-			}
 		} catch (ConnectException e) {
 			throw new ResourceNotReachableException(String.format("Error while connecting to %s: %s", host, e.getMessage()), e);
 		} catch (Exception e) {
 			throw new ResourceNotReachableException("Login failed" + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Stores the scheme of the WWW-Authenticate challenges of a 401 first_login response. A Digest challenge is preferred
+	 * over a Basic one when the camera offers both; the stored scheme is kept when neither is offered.
+	 *
+	 * @param challenges WWW-Authenticate headers of the first_login response
+	 */
+	private void applyChallenges(Header[] challenges) {
+		String digestChallenge = null;
+		boolean basicOffered = false;
+		for (Header header : challenges) {
+			String value = header.getValue() == null ? DeviceConstant.EMPTY : header.getValue().trim();
+			String scheme = value.toLowerCase(Locale.ROOT);
+			if (digestChallenge == null && scheme.startsWith("digest")) {
+				digestChallenge = value;
+			} else if (scheme.startsWith("basic")) {
+				basicOffered = true;
+			}
+		}
+		if (digestChallenge == null && !basicOffered) {
+			return;
+		}
+		AuthorizationChallengeHandler handler = new AuthorizationChallengeHandler(getLogin() == null ? DeviceConstant.EMPTY : getLogin(),
+				getPassword() == null ? DeviceConstant.EMPTY : getPassword());
+		if (digestChallenge != null) {
+			digestChallenges = Collections.singletonList(handler.parseAuthenticationOrAuthorizationHeader(digestChallenge));
+			challengeHandler = handler;
+			deviceAuthentication = DeviceAuthentication.DIGEST;
+		} else {
+			challengeHandler = handler;
+			deviceAuthentication = DeviceAuthentication.BASIC;
 		}
 	}
 
@@ -679,7 +777,7 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
-				sendCameraMonitoringRequest(request, monitoringGroup, false);
+				return sendCameraMonitoringRequest(request, monitoringGroup, false);
 			} else {
 				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
@@ -730,14 +828,12 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		String focusControlFarName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_FAR.getName());
 		String focusControlNearName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_NEAR.getName());
 		String focusSpeedControlName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_SPEED.getName());
-		String focusSpeedCurrentValueName = groupName.concat(FocusControlMetric.FOCUS_CONTROL_SPEED.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName());
 		String focusADJWithPTZName = groupName.concat(FocusControlMetric.FOCUS_ADJ_WITH_PTZ.getName());
 
 		if (cachedLiveCameraInfo.getAutoFocus().equals(AutoFocus.AUTO)) {
 			Set<String> unusedKeys = new HashSet<>();
 			unusedKeys.add(focusControlName);
 			unusedKeys.add(focusSpeedControlName);
-			unusedKeys.add(focusSpeedCurrentValueName);
 			unusedKeys.add(focusControlFarName);
 			unusedKeys.add(focusControlNearName);
 			unusedKeys.add(focusADJWithPTZName);
@@ -748,7 +844,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 			addAdvanceControlProperties(advancedControllableProperties, stats,
 					createSlider(stats, focusSpeedControlName, focusSpeedControlLabelStart, focusControlLabelEnd,
 							DeviceConstant.MIN_FOCUS_SPEED_UI_VALUE, DeviceConstant.MAX_FOCUS_SPEED_UI_VALUE, cachedFocusControlSpeed));
-			stats.put(focusSpeedCurrentValueName, String.valueOf((int) cachedFocusControlSpeed));
 			addAdvanceControlProperties(advancedControllableProperties, stats,
 					createButton(focusControlNearName, FocusControlMetric.NEAR.getName(), DeviceConstant.PUSHING));
 			addAdvanceControlProperties(advancedControllableProperties, stats,
@@ -760,8 +855,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createSwitch(groupName.concat(FocusControlMetric.AUTO_FOCUS.getName()), cachedLiveCameraInfo.getAutoFocus().getCode(), DeviceConstant.OFF, DeviceConstant.ON));
 
 		stats.put(groupName.concat(FocusControlMetric.FOCUS_MODE.getName()), cachedLiveCameraInfo.getAutoFocus().getUiName());
-		stats.put(groupName.concat(FocusControlMetric.FOCUS_CONTROL.getName()).concat(FocusControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getFocusUIValue()), DeviceConstant.NONE));
 	}
 
 	/**
@@ -1100,7 +1193,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createSlider(stats, panTiltSpeedLabelName, labelStart, labelEnd, DeviceConstant.MIN_PAN_TILT_SPEED_UI_VALUE, DeviceConstant.MAX_PAN_TILT_SPEED_UI_VALUE, cachedPanTiltControlSpeed));
 		stats.put(groupName.concat(PanTiltControlMetric.POWER_ON_POSITION.getName()), cachedLiveCameraInfo.getPowerOnPosition().getUiName());
-		stats.put(groupName.concat(PanTiltControlMetric.PT_SPEED_CURRENT_VALUE.getName()), String.valueOf((int) cachedPanTiltControlSpeed));
 
 		convertPanTiltPositionFromApiToUiValue(getDefaultValueForNullData(cachedLiveCameraInfo.getPanTiltPosition(), DeviceConstant.EMPTY));
 		stats.put(groupName.concat(PanTiltControlMetric.PAN_ABSOLUTE_POSITION_CONTROL.getName()), cachedLiveCameraInfo.getPanPosition());
@@ -1457,9 +1549,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 				createButton(groupName.concat(ZoomControlMetric.ZOOM_OUT.getName()), ZoomControlMetric.WIDE.getName(), DeviceConstant.PUSHING));
 		addAdvanceControlProperties(advancedControllableProperties, stats,
 				createButton(groupName.concat(ZoomControlMetric.ZOOM_IN.getName()), ZoomControlMetric.TELE.getName(), DeviceConstant.PUSHING));
-		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(cachedLiveCameraInfo.getZoomUIValue()), DeviceConstant.NONE));
-		stats.put(groupName.concat(ZoomControlMetric.ZOOM_CONTROL_SPEED.getName()).concat(ZoomControlMetric.CURRENT_VALUE.getName()), String.valueOf((int) cachedZoomControlSpeed));
 	}
 
 	/**
@@ -1636,9 +1725,6 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 
 		addAdvanceControlProperties(advancedControllableProperties, stats, createSlider(stats, groupName.concat(ImageAdjustControlMetric.IRIS.getName()), irisControlLabelStart, irisControlLabelEnd,
 				minIrisUIValue, DeviceConstant.MAX_IRIS_UI_VALUE, DeviceConstant.MAX_IRIS_UI_VALUE - currentIrisPosition + minIrisUIValue));
-
-		stats.put(groupName.concat(ImageAdjustControlMetric.IRIS.getName()).concat(ImageAdjustControlMetric.CURRENT_VALUE.getName()),
-				getDefaultValueForNullData(String.valueOf(currentIrisPosition), DeviceConstant.NONE));
 	}
 
 	/**
@@ -2022,11 +2108,10 @@ public class CameraPanasonicAWUE150Communicator extends RestCommunicator impleme
 		} catch (FailedLoginException f) {
 			if (retryOnUnAuthorized) {
 				login();
-				performCameraControl(command, controllableProperty, controlValue, controlType, false);
+				return performCameraControl(command, controllableProperty, controlValue, controlType, false);
 			} else {
 				throw new FailedLoginException("Failed to login, please check the username and password");
 			}
-			return DeviceConstant.EMPTY;
 		} catch (Exception e) {
 			throw new IllegalStateException(String.format("Error while controlling %s with value %s : %s", controllableProperty, controlValue, e.getMessage()), e);
 		}

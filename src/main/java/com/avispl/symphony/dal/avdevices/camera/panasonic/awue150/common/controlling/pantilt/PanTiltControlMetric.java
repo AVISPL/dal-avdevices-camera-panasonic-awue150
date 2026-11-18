@@ -28,7 +28,6 @@ public enum PanTiltControlMetric {
 	PAN_ABSOLUTE_POSITION_CONTROL("10PanAbsolutePosition"),
 	TILT_ABSOLUTE_POSITION_CONTROL("11TiltAbsolutePosition"),
 	PT_SPEED("12PTSpeedControl"),
-	PT_SPEED_CURRENT_VALUE("13PTSpeedControlCurrentValue"),
 	PAN("Pan"),
 	TILT("Tilt");
 

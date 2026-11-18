@@ -19,7 +19,6 @@ public enum ZoomControlMetric {
 	ZOOM_CONTROL("ZoomControl"),
 	ZOOM_OUT("ZoomOut"),
 	ZOOM_IN("ZoomIn"),
-	CURRENT_VALUE("CurrentValue"),
 	WIDE("-"),
 	TELE("+");
 
